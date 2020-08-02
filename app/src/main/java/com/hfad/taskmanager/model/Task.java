@@ -19,6 +19,10 @@ public class Task {
         mState = Utils.randomEnum(State.class);
     }
 
+    public UUID getID() {
+        return mID;
+    }
+
     public State getState() {
         return mState;
     }

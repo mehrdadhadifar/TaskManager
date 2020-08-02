@@ -5,7 +5,7 @@ import com.hfad.taskmanager.model.Task;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskRepository implements IRepository {
+public class TaskRepository implements IRepository<Task> {
     private static TaskRepository sTaskRepository;
 
 
@@ -31,37 +31,53 @@ public class TaskRepository implements IRepository {
 
     @Override
     public List getList() {
+        return mTasks;
+    }
+
+    @Override
+    public Task get(UUID uuid) {
+        for (Task task : mTasks
+        ) {
+            if (task.getID() == uuid)
+                return task;
+        }
         return null;
     }
 
     @Override
-    public Object get(UUID uuid) {
-        return null;
+    public void update(Task task) {
+        Task updateTask = get(task.getID());
+        updateTask.setState(task.getState());
+        updateTask.setTitle(task.getTitle());
     }
 
     @Override
-    public void setList(List list) {
-
+    public void delete(Task task) {
+        for (int i = 0; i < mTasks.size(); i++) {
+            if (mTasks.get(i).getID() == task.getID()) {
+                mTasks.remove(i);
+                break;
+            }
+        }
     }
 
     @Override
-    public void update(Object o) {
-
+    public void insert(Task task) {
+        mTasks.add(task);
     }
 
     @Override
-    public void delete(Object o) {
-
+    public void setList(List<Task> list) {
+        mTasks = list;
     }
 
-    @Override
-    public void insert(Object o) {
-
-    }
 
     @Override
-    public void insertList(List list) {
-
+    public void insertList(List<Task> list) {
+        for (Task task : list
+        ) {
+            mTasks.add(task);
+        }
     }
 
     @Override
