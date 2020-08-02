@@ -1,6 +1,7 @@
 package com.hfad.taskmanager.controller.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 
@@ -14,8 +15,11 @@ public class BuildListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_build_list);
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container,new BuildListFragment())
-                .commit();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, new BuildListFragment())
+                    .commit();
+        }
     }
 }
