@@ -1,12 +1,10 @@
 package com.hfad.taskmanager.controller.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 
-import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.TaskListFragment;
+import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 
 public class TaskListActivity extends SingleFragmentActivity {
 
@@ -14,5 +12,10 @@ public class TaskListActivity extends SingleFragmentActivity {
     @Override
     public Fragment createFragment() {
         return new TaskListFragment();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 }

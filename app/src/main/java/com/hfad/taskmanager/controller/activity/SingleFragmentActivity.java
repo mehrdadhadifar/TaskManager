@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.TaskListFragment;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
     public abstract Fragment createFragment();

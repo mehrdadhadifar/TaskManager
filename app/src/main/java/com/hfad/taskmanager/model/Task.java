@@ -9,7 +9,7 @@ public class Task {
     private State mState;
     private String mTitle;
 
-    public Task() {
+    private Task() {
         mID = UUID.randomUUID();
     }
 

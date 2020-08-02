@@ -14,4 +14,9 @@ public class BuildListActivity extends SingleFragmentActivity {
     public Fragment createFragment() {
         return new BuildListFragment();
     }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 }
