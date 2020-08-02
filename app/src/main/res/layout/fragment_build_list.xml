@@ -7,26 +7,58 @@
     android:orientation="vertical"
     tools:context=".controller.fragment.BuildListFragment">
 
-    <TextView
-        android:id="@+id/textView_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="TEST" />
-
-    <EditText
-        android:id="@+id/editText_username"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:layout_gravity="center" />
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/editText_number_tasks"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:gravity="start|center_vertical"
+            android:padding="5dp"
+            android:text="@string/name" />
+
+        <EditText
+            android:id="@+id/editText_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/enter_text"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:layout_gravity="center" />
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:gravity="start|center_vertical"
+            android:padding="5dp"
+            android:text="@string/number_of_tasks" />
+
+        <EditText
+            android:id="@+id/editText_number_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="@string/number"
+            android:importantForAutofill="no"
+            android:inputType="number" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_build_tasks"

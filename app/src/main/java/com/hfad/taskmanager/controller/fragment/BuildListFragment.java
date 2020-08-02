@@ -14,7 +14,7 @@ import com.hfad.taskmanager.model.Task;
 
 
 public class BuildListFragment extends Fragment {
-    private TextView mTextViewTest;
+
 
     public BuildListFragment() {
         // Required empty public constructor
@@ -31,8 +31,8 @@ public class BuildListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_build_list, container, false);
-        mTextViewTest = view.findViewById(R.id.textView_test);
-        mTextViewTest.setText(new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString() + "\n" + new Task("MY TEST TASK").toString());
+
+
         return view;
     }
 }
