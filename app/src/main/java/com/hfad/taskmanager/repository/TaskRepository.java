@@ -2,6 +2,7 @@ package com.hfad.taskmanager.repository;
 
 import com.hfad.taskmanager.model.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class TaskRepository implements IRepository<Task> {
     }
 
     private TaskRepository() {
+        mTasks=new ArrayList<Task>();
     }
 
     @Override

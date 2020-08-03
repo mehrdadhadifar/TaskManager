@@ -14,8 +14,4 @@ public class TaskListActivity extends SingleFragmentActivity {
         return new TaskListFragment();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 }
