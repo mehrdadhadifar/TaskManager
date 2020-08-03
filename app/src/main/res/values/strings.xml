@@ -7,4 +7,6 @@
     <string name="enter_text">Enter text</string>
     <string name="name">Name:</string>
     <string name="number_of_tasks">Number of tasks</string>
+    <string name="task">Task:</string>
+    <string name="state">State:</string>
 </resources>
