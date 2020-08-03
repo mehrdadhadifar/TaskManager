@@ -1,6 +1,7 @@
 package com.hfad.taskmanager.controller.fragment;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hfad.taskmanager.R;
@@ -61,6 +63,11 @@ public class TaskListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         findAllViews(view);
+        updateList();
+        return view;
+    }
+
+    private void updateList() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
         List<Task> tasks = mRepository.getList();
         if (mTaskAdapter == null) {
@@ -68,22 +75,25 @@ public class TaskListFragment extends Fragment {
         } else {
             mTaskAdapter.notifyDataSetChanged();
         }
-        return view;
     }
 
     private class TaskHolder extends RecyclerView.ViewHolder {
         private TextView mTextViewTitle;
         private TextView mTextViewState;
+        private LinearLayout mLinearLayoutMain;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewTitle = itemView.findViewById(R.id.recycle_view_tasks_text_view_title);
             mTextViewState = itemView.findViewById(R.id.recycle_view_tasks_text_view_state);
+            mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
         }
 
         public void bindTask(Task task) {
             mTextViewTitle.setText(task.getTitle());
             mTextViewState.setText(task.getState().toString());
+            if (getAdapterPosition() % 2 == 1)
+                mLinearLayoutMain.setBackgroundColor(Color.GRAY);
         }
     }
 
@@ -121,8 +131,6 @@ public class TaskListFragment extends Fragment {
             Task task = mTasks.get(position);
             holder.bindTask(task);
         }
-
-
     }
 
     private void findAllViews(View view) {
