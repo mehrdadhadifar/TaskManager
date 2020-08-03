@@ -1,5 +1,6 @@
 package com.hfad.taskmanager.controller.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,10 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hfad.taskmanager.R;
+import com.hfad.taskmanager.model.Task;
+import com.hfad.taskmanager.repository.IRepository;
+import com.hfad.taskmanager.repository.TaskRepository;
 
 
 public class TaskListFragment extends Fragment {
     private RecyclerView mRecyclerViewTasks;
+    private IRepository mRepository;
 
     public TaskListFragment() {
         // Required empty public constructor
@@ -23,7 +28,13 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Intent intent = getActivity().getIntent();
+        String username = intent.getStringExtra(BuildListFragment.EXTRA_USERNAME);
+        int numberOfTasks = intent.getIntExtra(BuildListFragment.EXTRA_NUMBER_OF_TASKS, 5);
+        mRepository = TaskRepository.getInstance();
+        for (int i = 0; i < numberOfTasks; i++) {
+            mRepository.insert(new Task(username));
+        }
     }
 
     @Override
