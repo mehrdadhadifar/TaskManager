@@ -28,7 +28,7 @@ public class TaskRepository implements IRepository<Task> {
     }
 
     private TaskRepository() {
-        mTasks=new ArrayList<Task>();
+        mTasks = new ArrayList<Task>();
     }
 
     @Override
@@ -84,6 +84,10 @@ public class TaskRepository implements IRepository<Task> {
 
     @Override
     public int getPosition(UUID uuid) {
-        return 0;
+        for (int i = 0; i < mTasks.size(); i++) {
+            if (mTasks.get(i).getID().equals(uuid))
+                return i;
+        }
+        return -1;
     }
 }

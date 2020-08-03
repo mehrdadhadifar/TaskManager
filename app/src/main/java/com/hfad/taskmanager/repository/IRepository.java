@@ -20,4 +20,4 @@ public interface IRepository<E> {
 
     int getPosition(UUID uuid);
 
-}
+    }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -46,10 +47,14 @@ public class BuildListFragment extends Fragment {
         mButtonBuild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), TaskListActivity.class);
-                intent.putExtra(EXTRA_USERNAME, mEditTextName.getText().toString());
-                intent.putExtra(EXTRA_NUMBER_OF_TASKS, Integer.valueOf(mEditTextNumber.getText().toString()));
-                startActivity(intent);
+                if (mEditTextName.getText() == null || mEditTextNumber.getText() == null)
+                    Toast.makeText(getActivity(), "input is not valid", Toast.LENGTH_LONG).show();
+                else {
+                    Intent intent = new Intent(getActivity(), TaskListActivity.class);
+                    intent.putExtra(EXTRA_USERNAME, mEditTextName.getText().toString());
+                    intent.putExtra(EXTRA_NUMBER_OF_TASKS, Integer.valueOf(mEditTextNumber.getText().toString()));
+                    startActivity(intent);
+                }
             }
         });
     }

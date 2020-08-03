@@ -1,6 +1,7 @@
 package com.hfad.taskmanager.controller.fragment;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +29,8 @@ public class TaskListFragment extends Fragment {
     private RecyclerView mRecyclerViewTasks;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
+    private boolean mIsLandscape;
+
 
     public TaskListFragment() {
         // Required empty public constructor
@@ -36,8 +40,11 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mIsLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         buildTasksRepository();
+
     }
+
     private void buildTasksRepository() {
         Intent intent = getActivity().getIntent();
         String username = intent.getStringExtra(BuildListFragment.EXTRA_USERNAME);
@@ -64,10 +71,14 @@ public class TaskListFragment extends Fragment {
     }
 
     private void updateList() {
-        mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
+        if (mIsLandscape) {
+            mRecyclerViewTasks.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        } else {
+            mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
         List<Task> tasks = mRepository.getList();
         if (mTaskAdapter == null) {
-            mTaskAdapter=new TaskAdapter(tasks);
+            mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerViewTasks.setAdapter(mTaskAdapter);
         } else {
             mTaskAdapter.notifyDataSetChanged();
@@ -89,8 +100,17 @@ public class TaskListFragment extends Fragment {
         public void bindTask(Task task) {
             mTextViewTitle.setText(task.getTitle());
             mTextViewState.setText(task.getState().toString());
-            if (getAdapterPosition() % 2 == 1)
-                mLinearLayoutMain.setBackgroundColor(Color.GRAY);
+            if (mIsLandscape) {
+                if (mRepository.getPosition(task.getID()) % 4 > 1)
+                    mLinearLayoutMain.setBackgroundColor(Color.GRAY);
+                else
+                    mLinearLayoutMain.setBackgroundColor((Color.WHITE));
+            } else {
+                if (mRepository.getPosition(task.getID()) % 2 == 1)
+                    mLinearLayoutMain.setBackgroundColor(Color.GRAY);
+                else
+                    mLinearLayoutMain.setBackgroundColor((Color.WHITE));
+            }
         }
     }
 
@@ -113,6 +133,14 @@ public class TaskListFragment extends Fragment {
         public int getItemCount() {
             return mTasks.size();
         }
+
+/*        @Override
+        public int getItemViewType(int position) {
+            if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+                return 1;
+            else
+                return 0;
+        }*/
 
         @NonNull
         @Override
