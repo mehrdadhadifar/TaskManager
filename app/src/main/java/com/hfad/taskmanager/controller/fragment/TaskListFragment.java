@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,10 +26,13 @@ import java.util.List;
 
 
 public class TaskListFragment extends Fragment {
+    public static final String TAG = "TLF";
     private RecyclerView mRecyclerViewTasks;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
     private boolean mIsLandscape;
+    private Button mButtonAddNewTask;
+    private String mUsername;
 
 
     public TaskListFragment() {
@@ -47,16 +50,18 @@ public class TaskListFragment extends Fragment {
 
     private void buildTasksRepository() {
         Intent intent = getActivity().getIntent();
-        String username = intent.getStringExtra(BuildListFragment.EXTRA_USERNAME);
+        mUsername = intent.getStringExtra(BuildListFragment.EXTRA_USERNAME);
         int numberOfTasks = intent.getIntExtra(BuildListFragment.EXTRA_NUMBER_OF_TASKS, 5);
         mRepository = TaskRepository.getInstance();
-        if (mRepository == null)
-            Log.d("TLF", "mRepository is null");
+/*
+       if (mRepository == null)
+            Log.d(TAG, "mRepository is null");
         else
-            Log.d("TLF", "mRepository is not null");
+            Log.d(TAG, "mRepository is not null");
+*/
 
         for (int i = 0; i < numberOfTasks; i++) {
-            mRepository.insert(new Task(username));
+            mRepository.insert(new Task(mUsername));
         }
     }
 
@@ -67,7 +72,19 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         findAllViews(view);
         updateList();
+        setClickListener();
         return view;
+    }
+
+    private void setClickListener() {
+        mButtonAddNewTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Task task = new Task(mUsername);
+                mRepository.insert(task);
+                mTaskAdapter.notifyItemInserted(mRepository.getPosition(task.getID()));
+            }
+        });
     }
 
     private void updateList() {
@@ -159,6 +176,7 @@ public class TaskListFragment extends Fragment {
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
+        mButtonAddNewTask = view.findViewById(R.id.button_add_task);
     }
 
 

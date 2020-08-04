@@ -47,7 +47,7 @@ public class BuildListFragment extends Fragment {
         mButtonBuild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mEditTextName.getText() == null || mEditTextNumber.getText() == null)
+                if (mEditTextName.getText().length()==0 || mEditTextNumber.getText().length()==0)
                     Toast.makeText(getActivity(), "input is not valid", Toast.LENGTH_LONG).show();
                 else {
                     Intent intent = new Intent(getActivity(), TaskListActivity.class);

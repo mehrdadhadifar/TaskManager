@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".controller.fragment.TaskListFragment">
 
@@ -9,5 +10,16 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycle_view_tasks"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="7" />
+
+    <Button
+        android:id="@+id/button_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="end"
+        android:layout_weight="1"
+        android:text="@string/add_task" />
+
+
 </LinearLayout>
