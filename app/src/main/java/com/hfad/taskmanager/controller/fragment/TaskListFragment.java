@@ -1,6 +1,5 @@
 package com.hfad.taskmanager.controller.fragment;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,6 +26,8 @@ import java.util.List;
 
 public class TaskListFragment extends Fragment {
     public static final String TAG = "TLF";
+    public static final String ARG_USERNAME = "ARG_USERNAME";
+    public static final String ARG_NUMBER_OF_TASKS = "ARG_NUMBER_OF_TASKS";
     private RecyclerView mRecyclerViewTasks;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
@@ -39,19 +40,27 @@ public class TaskListFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static TaskListFragment newInstance(String username, int numberOfTasks) {
+        Bundle args = new Bundle();
+        args.putString(ARG_USERNAME, username);
+        args.putInt(ARG_NUMBER_OF_TASKS, numberOfTasks);
+        TaskListFragment taskListFragment = new TaskListFragment();
+        taskListFragment.setArguments(args);
+        return taskListFragment;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIsLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        buildTasksRepository();
+        UpdateList();
 
     }
 
-    private void buildTasksRepository() {
-        Intent intent = getActivity().getIntent();
-        mUsername = intent.getStringExtra(BuildListFragment.EXTRA_USERNAME);
-        int numberOfTasks = intent.getIntExtra(BuildListFragment.EXTRA_NUMBER_OF_TASKS, 5);
+    private void UpdateList() {
+        mUsername = getArguments().getString(ARG_USERNAME);
+        int numberOfTasks = getArguments().getInt(ARG_NUMBER_OF_TASKS);
         mRepository = TaskRepository.getInstance();
 /*
        if (mRepository == null)

@@ -12,19 +12,25 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.hfad.taskmanager.R;
+import com.hfad.taskmanager.controller.activity.BuildListActivity;
 import com.hfad.taskmanager.controller.activity.TaskListActivity;
 
 
 public class BuildListFragment extends Fragment {
 
-    public static final String EXTRA_USERNAME = "com.hfad.taskmanager.controller.fragment_EXTRA_USERNAME";
-    public static final String EXTRA_NUMBER_OF_TASKS = "com.hfad.taskmanager.controller.fragment_EXTRA_NUMBER_OF_TASKS";
     private EditText mEditTextName;
     private EditText mEditTextNumber;
     private Button mButtonBuild;
 
     public BuildListFragment() {
         // Required empty public constructor
+    }
+
+    public static Fragment newInstance() {
+        Bundle args = new Bundle();
+        BuildListFragment buildListFragment = new BuildListFragment();
+        buildListFragment.setArguments(args);
+        return buildListFragment;
     }
 
 
@@ -47,12 +53,10 @@ public class BuildListFragment extends Fragment {
         mButtonBuild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mEditTextName.getText().length()==0 || mEditTextNumber.getText().length()==0)
+                if (mEditTextName.getText().length() == 0 || mEditTextNumber.getText().length() == 0)
                     Toast.makeText(getActivity(), "input is not valid", Toast.LENGTH_LONG).show();
                 else {
-                    Intent intent = new Intent(getActivity(), TaskListActivity.class);
-                    intent.putExtra(EXTRA_USERNAME, mEditTextName.getText().toString());
-                    intent.putExtra(EXTRA_NUMBER_OF_TASKS, Integer.valueOf(mEditTextNumber.getText().toString()));
+                    Intent intent = TaskListActivity.newIntent(getActivity(), mEditTextName.getText().toString(), Integer.valueOf(mEditTextNumber.getText().toString()));
                     startActivity(intent);
                 }
             }
