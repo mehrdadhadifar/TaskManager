@@ -26,8 +26,8 @@ import java.util.List;
 
 public class TaskListFragment extends Fragment {
     public static final String TAG = "TLF";
-    public static final String ARG_USERNAME = "ARG_USERNAME";
-    public static final String ARG_NUMBER_OF_TASKS = "ARG_NUMBER_OF_TASKS";
+    private static final String ARG_USERNAME = "ARG_USERNAME";
+    private static final String ARG_NUMBER_OF_TASKS = "ARG_NUMBER_OF_TASKS";
     private RecyclerView mRecyclerViewTasks;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
@@ -54,20 +54,15 @@ public class TaskListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIsLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        UpdateList();
+        initList();
 
     }
 
-    private void UpdateList() {
+    private void initList() {
         mUsername = getArguments().getString(ARG_USERNAME);
         int numberOfTasks = getArguments().getInt(ARG_NUMBER_OF_TASKS);
         mRepository = TaskRepository.getInstance();
-/*
-       if (mRepository == null)
-            Log.d(TAG, "mRepository is null");
-        else
-            Log.d(TAG, "mRepository is not null");
-*/
+
 
         for (int i = 0; i < numberOfTasks; i++) {
             mRepository.insert(new Task(mUsername));
