@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +30,7 @@ public class TaskListFragment extends Fragment {
     public static final String TAG = "TLF";
     private static final String ARG_STATES = "ARG_USERNAME";
     private RecyclerView mRecyclerViewTasks;
+    private LinearLayout mLinearLayoutEmpty;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
     private Button mButtonAddNewTask;
@@ -66,7 +66,7 @@ public class TaskListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         findAllViews(view);
-        updateList();
+        updateUI();
         setClickListener();
         return view;
     }
@@ -97,10 +97,17 @@ public class TaskListFragment extends Fragment {
         return -1;
     }
 
-    private void updateList() {
+    private void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         List<Task> tasks = mRepository.getList();
+        TaskRepository taskRepository = (TaskRepository) mRepository;
+        if (taskRepository.getListByStates(mStateList).size() == 0) {
+            mLinearLayoutEmpty.setVisibility(View.VISIBLE);
+            mRecyclerViewTasks.setVisibility(View.GONE);
+        } else {
+            mLinearLayoutEmpty.setVisibility(View.GONE);
+            mRecyclerViewTasks.setVisibility(View.VISIBLE);
+        }
 //        Log.d(TAG+" Sinze",String.valueOf(mRepository.getListByStates(mStateList).size()));
 //        Log.d(TAG+" Sinze",String.valueOf(mRepository.getList().size()));
         if (mTaskAdapter == null) {
@@ -115,14 +122,12 @@ public class TaskListFragment extends Fragment {
         private TextView mTextViewTitle;
         private TextView mTextViewState;
         private LinearLayout mLinearLayoutMain;
-        private ConstraintLayout mConstraintLayoutNothing;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewTitle = itemView.findViewById(R.id.recycle_view_tasks_text_view_title);
             mTextViewState = itemView.findViewById(R.id.recycle_view_tasks_text_view_state);
             mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
-            mConstraintLayoutNothing = itemView.findViewById(R.id.nothing_recycle_view_tasks);
         }
 
         public void bindTask(Task task) {
@@ -189,5 +194,6 @@ public class TaskListFragment extends Fragment {
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
         mButtonAddNewTask = view.findViewById(R.id.button_add_task);
+        mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
     }
 }

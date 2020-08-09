@@ -1,23 +1,26 @@
 package com.hfad.taskmanager.controller.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.hfad.taskmanager.R;
+import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.IRepository;
 import com.hfad.taskmanager.repository.TaskRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
@@ -26,8 +29,7 @@ public class TaskPagerActivity extends AppCompatActivity {
     private IRepository<Task> mTaskRepository;
 
     public static Intent newIntent(Context context) {
-        Intent intent = new Intent(context, TaskPagerActivity.class);
-        return intent;
+        return new Intent(context, TaskPagerActivity.class);
     }
 
     @Override
@@ -38,7 +40,6 @@ public class TaskPagerActivity extends AppCompatActivity {
         findAllViews();
         FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
         mTaskViewPager.setAdapter(adapter);
-
     }
 
     private class TaskViewPagerAdapter extends FragmentStateAdapter {
@@ -49,7 +50,19 @@ public class TaskPagerActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return null;
+            List<State> stateList = new ArrayList<>();
+            switch (position) {
+                case 1:
+                    stateList.add(State.Doing);
+                    break;
+                case 2:
+                    stateList.add(State.Done);
+                    break;
+                default:
+                    stateList.add(State.Todo);
+                    break;
+            }
+            return TaskListFragment.newInstance(stateList);
         }
 
         @Override
