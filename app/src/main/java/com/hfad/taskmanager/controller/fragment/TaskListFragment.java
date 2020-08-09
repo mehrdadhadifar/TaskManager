@@ -1,8 +1,8 @@
 package com.hfad.taskmanager.controller.fragment;
 
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,39 +11,38 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.taskmanager.R;
+import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.IRepository;
 import com.hfad.taskmanager.repository.TaskRepository;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 
 public class TaskListFragment extends Fragment {
     public static final String TAG = "TLF";
-    private static final String ARG_USERNAME = "ARG_USERNAME";
-    private static final String ARG_NUMBER_OF_TASKS = "ARG_NUMBER_OF_TASKS";
+    private static final String ARG_STATES = "ARG_USERNAME";
     private RecyclerView mRecyclerViewTasks;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
-    private boolean mIsLandscape;
     private Button mButtonAddNewTask;
-    private String mUsername;
-
+    private List<State> mStateList;
 
     public TaskListFragment() {
         // Required empty public constructor
     }
 
-    public static TaskListFragment newInstance(String username, int numberOfTasks) {
+    public static TaskListFragment newInstance(List<State> stateList) {
         Bundle args = new Bundle();
-        args.putString(ARG_USERNAME, username);
-        args.putInt(ARG_NUMBER_OF_TASKS, numberOfTasks);
+        args.putSerializable(ARG_STATES, (Serializable) stateList);
         TaskListFragment taskListFragment = new TaskListFragment();
         taskListFragment.setArguments(args);
         return taskListFragment;
@@ -53,20 +52,12 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIsLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         initList();
-
     }
 
     private void initList() {
-        mUsername = getArguments().getString(ARG_USERNAME);
-        int numberOfTasks = getArguments().getInt(ARG_NUMBER_OF_TASKS);
+        mStateList = (List<State>) getArguments().getSerializable(ARG_STATES);
         mRepository = TaskRepository.getInstance();
-
-
-        for (int i = 0; i < numberOfTasks; i++) {
-            mRepository.insert(new Task(mUsername));
-        }
     }
 
     @Override
@@ -84,20 +75,34 @@ public class TaskListFragment extends Fragment {
         mButtonAddNewTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Task task = new Task(mUsername);
+                Task task = new Task("New Task");
                 mRepository.insert(task);
                 mTaskAdapter.notifyItemInserted(mRepository.getPosition(task.getID()));
+
+//                Log.d(TAG + " id", String.valueOf(mRepository.getPosition(task.getID())));
+//                Log.d(TAG + " pos in list", String.valueOf(getStateListPosition(task.getID())));
+//                Log.d(TAG + " count", String.valueOf(mTaskAdapter.getItemCount()));
+//                Log.d(TAG + " size", String.valueOf(mRepository.getListByStates(mStateList).size()));
             }
         });
     }
 
-    private void updateList() {
-        if (mIsLandscape) {
-            mRecyclerViewTasks.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        } else {
-            mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
+    private int getStateListPosition(UUID uuid) {
+        TaskRepository taskRepository = (TaskRepository) mRepository;
+        for (int i = 0; i < taskRepository.getListByStates(mStateList).size(); i++) {
+            if (uuid.equals(taskRepository.getListByStates(mStateList).get(i).getID())) {
+                return i;
+            }
         }
+        return -1;
+    }
+
+    private void updateList() {
+        mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         List<Task> tasks = mRepository.getList();
+//        Log.d(TAG+" Sinze",String.valueOf(mRepository.getListByStates(mStateList).size()));
+//        Log.d(TAG+" Sinze",String.valueOf(mRepository.getList().size()));
         if (mTaskAdapter == null) {
             mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerViewTasks.setAdapter(mTaskAdapter);
@@ -110,24 +115,21 @@ public class TaskListFragment extends Fragment {
         private TextView mTextViewTitle;
         private TextView mTextViewState;
         private LinearLayout mLinearLayoutMain;
+        private ConstraintLayout mConstraintLayoutNothing;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewTitle = itemView.findViewById(R.id.recycle_view_tasks_text_view_title);
             mTextViewState = itemView.findViewById(R.id.recycle_view_tasks_text_view_state);
             mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
+            mConstraintLayoutNothing = itemView.findViewById(R.id.nothing_recycle_view_tasks);
         }
 
         public void bindTask(Task task) {
-            mTextViewTitle.setText(task.getTitle());
-            mTextViewState.setText(task.getState().toString());
-            if (mIsLandscape) {
-                if (mRepository.getPosition(task.getID()) % 4 > 1)
-                    mLinearLayoutMain.setBackgroundColor(Color.GRAY);
-                else
-                    mLinearLayoutMain.setBackgroundColor((Color.WHITE));
-            } else {
-                if (mRepository.getPosition(task.getID()) % 2 == 1)
+            if (getItemViewType() == 1) {
+                mTextViewTitle.setText(task.getTitle());
+                mTextViewState.setText(task.getState().toString());
+                if (getStateListPosition(task.getID()) % 2 == 1)
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else
                     mLinearLayoutMain.setBackgroundColor((Color.WHITE));
@@ -152,22 +154,27 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
+            Log.d(TAG + " size adapteram", String.valueOf(mTasks.size()));
             return mTasks.size();
         }
 
-/*        @Override
+        @Override
         public int getItemViewType(int position) {
-            if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            if (mStateList.contains(mTasks.get(position).getState()))
                 return 1;
             else
                 return 0;
-        }*/
+        }
 
         @NonNull
         @Override
         public TaskHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View view = inflater.inflate(R.layout.recycler_view_list_row_task, parent, false);
+            View view;
+            if (viewType == 1)
+                view = inflater.inflate(R.layout.recycler_view_list_row_task, parent, false);
+            else
+                view = inflater.inflate(R.layout.recycler_view_list_row_nothing, parent, false);
             return new TaskHolder(view);
         }
 
@@ -176,12 +183,11 @@ public class TaskListFragment extends Fragment {
             Task task = mTasks.get(position);
             holder.bindTask(task);
         }
+
     }
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
         mButtonAddNewTask = view.findViewById(R.id.button_add_task);
     }
-
-
 }

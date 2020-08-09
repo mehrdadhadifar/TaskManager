@@ -1,5 +1,6 @@
 package com.hfad.taskmanager.repository;
 
+import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 
 import java.util.ArrayList;
@@ -89,5 +90,18 @@ public class TaskRepository implements IRepository<Task> {
                 return i;
         }
         return -1;
+    }
+
+    public List<Task> getListByStates(List<State> stateList) {
+        List<Task> tasksByStates = new ArrayList<>();
+        for (int i = 0; i < mTasks.size(); i++) {
+            for (int j = 0; j < stateList.size(); j++) {
+                if (mTasks.get(i).getState().equals(stateList.get(j))) {
+                    tasksByStates.add(mTasks.get(i));
+                    break;
+                }
+            }
+        }
+        return tasksByStates;
     }
 }

@@ -19,6 +19,12 @@ public class Task {
         mState = Utils.randomEnum(State.class);
     }
 
+    public Task(String title, State state) {
+        this();
+        mTitle = title;
+        mState = state;
+    }
+
     public UUID getID() {
         return mID;
     }

@@ -15,13 +15,15 @@ import android.os.Bundle;
 import com.google.android.material.tabs.TabLayout;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
+import com.hfad.taskmanager.model.Task;
+import com.hfad.taskmanager.repository.IRepository;
 import com.hfad.taskmanager.repository.TaskRepository;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
     private ViewPager2 mTaskViewPager;
     private TabLayout mTaskTabLayout;
-    private TaskRepository mTaskRepository;
+    private IRepository<Task> mTaskRepository;
 
     public static Intent newIntent(Context context) {
         Intent intent = new Intent(context, TaskPagerActivity.class);

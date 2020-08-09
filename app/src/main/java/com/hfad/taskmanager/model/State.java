@@ -1,5 +1,7 @@
 package com.hfad.taskmanager.model;
 
-public enum State {
-    Todo,Doing,Done
+import java.io.Serializable;
+
+public enum State implements Serializable {
+    Todo, Doing, Done
 }

@@ -14,6 +14,14 @@ import androidx.fragment.app.Fragment;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.BuildListActivity;
 import com.hfad.taskmanager.controller.activity.TaskListActivity;
+import com.hfad.taskmanager.model.State;
+import com.hfad.taskmanager.model.Task;
+import com.hfad.taskmanager.repository.IRepository;
+import com.hfad.taskmanager.repository.TaskRepository;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class BuildListFragment extends Fragment {
@@ -21,6 +29,9 @@ public class BuildListFragment extends Fragment {
     private EditText mEditTextName;
     private EditText mEditTextNumber;
     private Button mButtonBuild;
+    private IRepository<Task> mTaskIRepository;
+    private String mUsername;
+    private int mNumberOfTasks;
 
     public BuildListFragment() {
         // Required empty public constructor
@@ -56,7 +67,16 @@ public class BuildListFragment extends Fragment {
                 if (mEditTextName.getText().length() == 0 || mEditTextNumber.getText().length() == 0)
                     Toast.makeText(getActivity(), "input is not valid", Toast.LENGTH_LONG).show();
                 else {
-                    Intent intent = TaskListActivity.newIntent(getActivity(), mEditTextName.getText().toString(), Integer.valueOf(mEditTextNumber.getText().toString()));
+                    mUsername = mEditTextName.getText().toString();
+                    mNumberOfTasks = Integer.valueOf(mEditTextNumber.getText().toString());
+                    mTaskIRepository = TaskRepository.getInstance();
+                    for (int i = 0; i < mNumberOfTasks; i++) {
+                        Task task = new Task(mUsername);
+                        mTaskIRepository.insert(task);
+                    }
+                    List<State> stateList=new ArrayList<State>();
+                    stateList.add(State.Done);
+                    Intent intent = TaskListActivity.newIntent(getActivity(),stateList );
                     startActivity(intent);
                 }
             }
