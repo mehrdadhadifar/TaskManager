@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
@@ -33,7 +33,7 @@ public class TaskListFragment extends Fragment {
     private LinearLayout mLinearLayoutEmpty;
     private IRepository<Task> mRepository;
     private TaskAdapter mTaskAdapter;
-    private Button mButtonAddNewTask;
+    private FloatingActionButton mButtonAddNewTask;
     private List<State> mStateList;
 
     public TaskListFragment() {
@@ -194,7 +194,7 @@ public class TaskListFragment extends Fragment {
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
-        mButtonAddNewTask = view.findViewById(R.id.button_add_task);
+        mButtonAddNewTask = view.findViewById(R.id.floating_Action_Button_add);
         mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
     }
 }
