@@ -77,6 +77,7 @@ public class TaskListFragment extends Fragment {
             public void onClick(View view) {
                 Task task = new Task("New Task");
                 mRepository.insert(task);
+                updateUI();
                 mTaskAdapter.notifyItemInserted(mRepository.getPosition(task.getID()));
 
 //                Log.d(TAG + " id", String.valueOf(mRepository.getPosition(task.getID())));
