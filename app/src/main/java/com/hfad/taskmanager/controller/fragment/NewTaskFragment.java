@@ -29,8 +29,10 @@ import java.util.Date;
 //TODO : Handel configuration change mTaskDate
 
 public class NewTaskFragment extends DialogFragment {
-    public static final int DATE_PICKER_REQUEST_CODE = 1;
+    public static final int DATE_PICKER_REQUEST_CODE = 0;
+    public static final int TIME_PICKER_REQUEST_CODE = 1;
     public static final String DIALOG_DATE_FRAGMENT_TAG = "DIALOG_DATE_FRAGMENT_TAG";
+    public static final String DIALOG_TIME_FRAGMENT_TAG = "DIALOG_TIME_FRAGMENT_TAG";
     private EditText mEditTextTile;
     private EditText mEditTextComment;
     private Button mButtonDate;
@@ -101,6 +103,14 @@ public class NewTaskFragment extends DialogFragment {
                 datePickerFragment.show(getFragmentManager(), DIALOG_DATE_FRAGMENT_TAG);
             }
         });
+        mButtonTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerFragment timePickerFragment = TimePickerFragment.newInstance(mTaskDate);
+                timePickerFragment.setTargetFragment(NewTaskFragment.this, TIME_PICKER_REQUEST_CODE);
+                timePickerFragment.show(getFragmentManager(), DIALOG_TIME_FRAGMENT_TAG);
+            }
+        });
     }
 
     private void buildTask() {
@@ -130,6 +140,14 @@ public class NewTaskFragment extends DialogFragment {
             Calendar userSelectedCalendar = Calendar.getInstance();
             userSelectedCalendar.setTime(userSelectedDate);
             mCalendar.set(userSelectedCalendar.get(Calendar.YEAR), userSelectedCalendar.get(Calendar.MONTH), userSelectedCalendar.get(Calendar.DAY_OF_MONTH));
+            mTaskDate = mCalendar.getTime();
+            updateUI();
+        }
+        if (requestCode == TIME_PICKER_REQUEST_CODE) {
+            Date userSelectedDate = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_USER_SELECTED_DATE);
+            Calendar userSelectedCalender = Calendar.getInstance();
+            userSelectedCalender.setTime(userSelectedDate);
+            mCalendar.set(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH), userSelectedCalender.get(Calendar.HOUR), userSelectedCalender.get(Calendar.MINUTE));
             mTaskDate = mCalendar.getTime();
             updateUI();
         }

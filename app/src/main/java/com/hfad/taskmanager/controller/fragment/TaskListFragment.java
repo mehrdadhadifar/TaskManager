@@ -2,6 +2,7 @@ package com.hfad.taskmanager.controller.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +15,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -133,8 +134,9 @@ public class TaskListFragment extends Fragment {
                 mTextViewTitle.setText(task.getTitle());
                 mTextViewState.setText(task.getState().toString());
                 mTextViewComment.setText(task.getComment());
-                mTextViewDate.setText(task.getDate().toString());
-
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(task.getDate());
+                mTextViewDate.setText(DateUtils.formatDateTime(getActivity(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
                 if (getStateListPosition(task.getID()) % 2 == 1)
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else

@@ -76,7 +76,6 @@ public class DatePickerFragment extends DialogFragment {
     private void initDatePicker() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(mCurrentDate);
-
         int year = calendar.get(Calendar.YEAR);
         int monthOfYear = calendar.get(Calendar.MONTH);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
@@ -87,7 +86,6 @@ public class DatePickerFragment extends DialogFragment {
         int year = mDatePicker.getYear();
         int monthOfYear = mDatePicker.getMonth();
         int dayOfMonth = mDatePicker.getDayOfMonth();
-
         GregorianCalendar gregorianCalendar = new GregorianCalendar(year, monthOfYear, dayOfMonth);
         return gregorianCalendar.getTime();
     }
