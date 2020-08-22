@@ -29,6 +29,7 @@ import java.util.List;
 public class TaskPagerActivity extends AppCompatActivity {
 
     public static final String TAG = "TPA";
+    public static final String NEW_TASK_FRAGMENT = "NEW_TASK_FRAGMENT";
     private ViewPager2 mTaskViewPager;
     private TabLayout mTaskTabLayout;
     private FloatingActionButton mFloatingActionButtonNewTask;
@@ -71,7 +72,7 @@ public class TaskPagerActivity extends AppCompatActivity {
                 Log.d(TAG, "button activity");
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
                 NewTaskFragment newTaskFragment = NewTaskFragment.newInstance();
-                newTaskFragment.show(getSupportFragmentManager(), "NEW_TASK_FRAGMENT");
+                newTaskFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
                 adapter.notifyItemRangeChanged(0,3);*/

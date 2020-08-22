@@ -24,6 +24,8 @@ import java.util.Date;
 
 
 public class NewTaskFragment extends DialogFragment {
+    public static final int DATE_PICKER_REQUEST_CODE = 1;
+    public static final String DIALOG_DATE_FRAGMENT_TAG = "DIALOG_DATE_FRAGMENT_TAG";
     private EditText mEditTextTile;
     private EditText mEditTextComment;
     private Button mButtonDate;
@@ -62,6 +64,7 @@ public class NewTaskFragment extends DialogFragment {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View view = inflater.inflate(R.layout.fragment_new_task, null);
         findAllViews(view);
+        setonClickListeners();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -74,6 +77,17 @@ public class NewTaskFragment extends DialogFragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
+    }
+
+    private void setonClickListeners() {
+        mButtonDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerFragment datePickerFragment=DatePickerFragment.newInstance(mTaskDate);
+                datePickerFragment.setTargetFragment(NewTaskFragment.this, DATE_PICKER_REQUEST_CODE);
+                datePickerFragment.show(getFragmentManager(), DIALOG_DATE_FRAGMENT_TAG);
+            }
+        });
     }
 
     private void buildTask() {
