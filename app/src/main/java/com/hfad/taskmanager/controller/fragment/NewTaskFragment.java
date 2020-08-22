@@ -1,8 +1,10 @@
 package com.hfad.taskmanager.controller.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,8 +22,11 @@ import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
+//TODO : Handel configuration change mTaskDate
 
 public class NewTaskFragment extends DialogFragment {
     public static final int DATE_PICKER_REQUEST_CODE = 1;
@@ -36,6 +41,7 @@ public class NewTaskFragment extends DialogFragment {
     private State mTaskState;
     private Date mTaskDate;
     private TaskRepository mTaskRepository;
+    private Calendar mCalendar;
 
 
     public NewTaskFragment() {
@@ -55,7 +61,7 @@ public class NewTaskFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         mTaskDate = new Date();
         mTaskRepository = TaskRepository.getInstance();
-
+        mCalendar = Calendar.getInstance();
     }
 
     @NonNull
@@ -64,6 +70,7 @@ public class NewTaskFragment extends DialogFragment {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View view = inflater.inflate(R.layout.fragment_new_task, null);
         findAllViews(view);
+        updateUI();
         setonClickListeners();
 
         return new AlertDialog.Builder(getActivity())
@@ -79,11 +86,17 @@ public class NewTaskFragment extends DialogFragment {
                 .create();
     }
 
+    private void updateUI() {
+        mCalendar.setTime(mTaskDate);
+        mButtonDate.setText(mCalendar.get(Calendar.YEAR) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.DAY_OF_MONTH));
+        mButtonTime.setText(mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE) + ":" + mCalendar.get(Calendar.SECOND));
+    }
+
     private void setonClickListeners() {
         mButtonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerFragment datePickerFragment=DatePickerFragment.newInstance(mTaskDate);
+                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mTaskDate);
                 datePickerFragment.setTargetFragment(NewTaskFragment.this, DATE_PICKER_REQUEST_CODE);
                 datePickerFragment.show(getFragmentManager(), DIALOG_DATE_FRAGMENT_TAG);
             }
@@ -106,6 +119,21 @@ public class NewTaskFragment extends DialogFragment {
         }
         Task task = new Task(mTaskState, mTaskTitle, mTaskComment, mTaskDate);
         mTaskRepository.insert(task);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+        if (requestCode == DATE_PICKER_REQUEST_CODE) {
+            Date userSelectedDate = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_USER_SELECTED_DATE);
+            Calendar userSelectedCalendar = Calendar.getInstance();
+            userSelectedCalendar.setTime(userSelectedDate);
+            mCalendar.set(userSelectedCalendar.get(Calendar.YEAR), userSelectedCalendar.get(Calendar.MONTH), userSelectedCalendar.get(Calendar.DAY_OF_MONTH));
+            mTaskDate = mCalendar.getTime();
+            updateUI();
+        }
+
     }
 
     private void findAllViews(View view) {
