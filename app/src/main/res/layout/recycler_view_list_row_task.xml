@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recycle_view_tasks_main_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/recycle_view_tasks_main_linear_layout"
     android:orientation="vertical">
 
     <LinearLayout
@@ -18,7 +18,7 @@
             android:layout_weight="2"
             android:gravity="center"
             android:padding="5dp"
-            android:text="@string/task" />
+            android:text="@string/title" />
 
         <TextView
             android:id="@+id/recycle_view_tasks_text_view_title"
@@ -47,6 +47,56 @@
 
         <TextView
             android:id="@+id/recycle_view_tasks_text_view_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/comments" />
+
+        <TextView
+            android:id="@+id/recycle_view_tasks_text_view_comment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/date" />
+
+        <TextView
+            android:id="@+id/recycle_view_tasks_text_view_date"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

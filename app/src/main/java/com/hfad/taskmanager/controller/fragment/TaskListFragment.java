@@ -18,7 +18,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
-import com.hfad.taskmanager.repository.IRepository;
 import com.hfad.taskmanager.repository.TaskRepository;
 
 import java.io.Serializable;
@@ -31,9 +30,8 @@ public class TaskListFragment extends Fragment {
     private static final String ARG_STATES = "ARG_USERNAME";
     private RecyclerView mRecyclerViewTasks;
     private LinearLayout mLinearLayoutEmpty;
-    private IRepository<Task> mRepository;
+    private TaskRepository mTaskRepository;
     private TaskAdapter mTaskAdapter;
-    private FloatingActionButton mButtonAddNewTask;
     private List<State> mStateList;
 
     public TaskListFragment() {
@@ -57,7 +55,8 @@ public class TaskListFragment extends Fragment {
 
     private void initList() {
         mStateList = (List<State>) getArguments().getSerializable(ARG_STATES);
-        mRepository = TaskRepository.getInstance();
+        mTaskRepository = TaskRepository.getInstance();
+
     }
 
     @Override
@@ -67,31 +66,23 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         findAllViews(view);
         updateUI();
-        setClickListener();
+//        setClickListener();
         return view;
     }
 
-    private void setClickListener() {
-        mButtonAddNewTask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Task task = new Task("New Task");
-                mRepository.insert(task);
-                updateUI();
-                mTaskAdapter.notifyItemInserted(mRepository.getPosition(task.getID()));
-
-//                Log.d(TAG + " id", String.valueOf(mRepository.getPosition(task.getID())));
-//                Log.d(TAG + " pos in list", String.valueOf(getStateListPosition(task.getID())));
-//                Log.d(TAG + " count", String.valueOf(mTaskAdapter.getItemCount()));
-//                Log.d(TAG + " size", String.valueOf(mRepository.getListByStates(mStateList).size()));
-            }
-        });
+    @Override
+    public void onResume() {
+        super.onResume();
+        mTaskRepository = TaskRepository.getInstance();
+        Log.d(TAG, "on resume");
+        Log.d(TAG, "size list select:" + mTaskRepository.getListByStates(mStateList).size());
+        updateUI();
     }
 
+
     private int getStateListPosition(UUID uuid) {
-        TaskRepository taskRepository = (TaskRepository) mRepository;
-        for (int i = 0; i < taskRepository.getListByStates(mStateList).size(); i++) {
-            if (uuid.equals(taskRepository.getListByStates(mStateList).get(i).getID())) {
+        for (int i = 0; i < mTaskRepository.getListByStates(mStateList).size(); i++) {
+            if (uuid.equals(mTaskRepository.getListByStates(mStateList).get(i).getID())) {
                 return i;
             }
         }
@@ -100,9 +91,9 @@ public class TaskListFragment extends Fragment {
 
     private void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
-        List<Task> tasks = mRepository.getList();
-        TaskRepository taskRepository = (TaskRepository) mRepository;
-        if (taskRepository.getListByStates(mStateList).size() == 0) {
+        List<Task> tasks = mTaskRepository.getListByStates(mStateList);
+
+        if (tasks.size() == 0) {
             mLinearLayoutEmpty.setVisibility(View.VISIBLE);
             mRecyclerViewTasks.setVisibility(View.GONE);
         } else {
@@ -115,6 +106,8 @@ public class TaskListFragment extends Fragment {
             mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerViewTasks.setAdapter(mTaskAdapter);
         } else {
+            Log.d(TAG, "Adapter Notify");
+            mTaskAdapter.setTasks(tasks);
             mTaskAdapter.notifyDataSetChanged();
         }
     }
@@ -123,18 +116,25 @@ public class TaskListFragment extends Fragment {
         private TextView mTextViewTitle;
         private TextView mTextViewState;
         private LinearLayout mLinearLayoutMain;
+        private TextView mTextViewComment;
+        private TextView mTextViewDate;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewTitle = itemView.findViewById(R.id.recycle_view_tasks_text_view_title);
             mTextViewState = itemView.findViewById(R.id.recycle_view_tasks_text_view_state);
             mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
+            mTextViewComment = itemView.findViewById(R.id.recycle_view_tasks_text_view_comment);
+            mTextViewDate = itemView.findViewById(R.id.recycle_view_tasks_text_view_date);
         }
 
         public void bindTask(Task task) {
             if (getItemViewType() == 1) {
                 mTextViewTitle.setText(task.getTitle());
                 mTextViewState.setText(task.getState().toString());
+                mTextViewComment.setText(task.getComment());
+                mTextViewDate.setText(task.getDate().toString());
+
                 if (getStateListPosition(task.getID()) % 2 == 1)
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else
@@ -166,10 +166,10 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-            if (mStateList.contains(mTasks.get(position).getState()))
-                return 1;
-            else
+            if (mTasks.size() == 0)
                 return 0;
+            else
+                return 1;
         }
 
         @NonNull
@@ -194,7 +194,6 @@ public class TaskListFragment extends Fragment {
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
-        mButtonAddNewTask = view.findViewById(R.id.floating_Action_Button_add);
         mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
     }
 }

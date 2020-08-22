@@ -11,4 +11,7 @@
     <string name="state">State:</string>
     <string name="add_task">Add task</string>
     <string name="empty_list">Empty List</string>
+    <string name="title">Title:</string>
+    <string name="date">Date:</string>
+    <string name="comments">Comments:</string>
 </resources>
