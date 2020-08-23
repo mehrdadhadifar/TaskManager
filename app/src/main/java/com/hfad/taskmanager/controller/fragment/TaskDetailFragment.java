@@ -22,22 +22,24 @@ import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 //TODO : Handel configuration change mTaskDate
 
-public class NewTaskFragment extends DialogFragment {
+public class TaskDetailFragment extends DialogFragment {
     public static final int DATE_PICKER_REQUEST_CODE = 0;
     public static final int TIME_PICKER_REQUEST_CODE = 1;
     public static final String DIALOG_DATE_FRAGMENT_TAG = "DIALOG_DATE_FRAGMENT_TAG";
     public static final String DIALOG_TIME_FRAGMENT_TAG = "DIALOG_TIME_FRAGMENT_TAG";
+    public static final String ARG_TASK_ID = "ARG_TASK_ID";
     private EditText mEditTextTile;
     private EditText mEditTextComment;
     private Button mButtonDate;
     private Button mButtonTime;
     private RadioGroup mRadioGroupState;
+    private Task mTask;
     private String mTaskTitle;
     private String mTaskComment;
     private State mTaskState;
@@ -46,14 +48,15 @@ public class NewTaskFragment extends DialogFragment {
     private Calendar mCalendar;
 
 
-    public NewTaskFragment() {
+    public TaskDetailFragment() {
         // Required empty public constructor
     }
 
 
-    public static NewTaskFragment newInstance() {
-        NewTaskFragment fragment = new NewTaskFragment();
+    public static TaskDetailFragment newInstance(UUID uuid) {
+        TaskDetailFragment fragment = new TaskDetailFragment();
         Bundle args = new Bundle();
+        args.putSerializable(ARG_TASK_ID, uuid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,7 +64,10 @@ public class NewTaskFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTaskDate = new Date();
+        if (getArguments().getSerializable(ARG_TASK_ID) == null) {
+            mTask = new Task("", State.Todo,new Date());
+        }
+//        mTaskDate = new Date();
         mTaskRepository = TaskRepository.getInstance();
         mCalendar = Calendar.getInstance();
     }
@@ -70,7 +76,7 @@ public class NewTaskFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View view = inflater.inflate(R.layout.fragment_new_task, null);
+        View view = inflater.inflate(R.layout.fragment_show_task_details, null);
         findAllViews(view);
         updateUI();
         setonClickListeners();
@@ -89,7 +95,7 @@ public class NewTaskFragment extends DialogFragment {
     }
 
     private void updateUI() {
-        mCalendar.setTime(mTaskDate);
+        mCalendar.setTime(mTask.getDate());
         mButtonDate.setText(mCalendar.get(Calendar.YEAR) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.DAY_OF_MONTH));
         mButtonTime.setText(mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE) + ":" + mCalendar.get(Calendar.SECOND));
     }
@@ -98,37 +104,36 @@ public class NewTaskFragment extends DialogFragment {
         mButtonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mTaskDate);
-                datePickerFragment.setTargetFragment(NewTaskFragment.this, DATE_PICKER_REQUEST_CODE);
+                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mTask.getDate());
+                datePickerFragment.setTargetFragment(TaskDetailFragment.this, DATE_PICKER_REQUEST_CODE);
                 datePickerFragment.show(getFragmentManager(), DIALOG_DATE_FRAGMENT_TAG);
             }
         });
         mButtonTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerFragment timePickerFragment = TimePickerFragment.newInstance(mTaskDate);
-                timePickerFragment.setTargetFragment(NewTaskFragment.this, TIME_PICKER_REQUEST_CODE);
+                TimePickerFragment timePickerFragment = TimePickerFragment.newInstance(mTask.getDate());
+                timePickerFragment.setTargetFragment(TaskDetailFragment.this, TIME_PICKER_REQUEST_CODE);
                 timePickerFragment.show(getFragmentManager(), DIALOG_TIME_FRAGMENT_TAG);
             }
         });
     }
 
     private void buildTask() {
-        mTaskTitle = mEditTextTile.getText().toString();
-        mTaskComment = mEditTextComment.getText().toString();
+        mTask.setTitle(mEditTextTile.getText().toString());
+        mTask.setComment(mEditTextComment.getText().toString());
         switch (mRadioGroupState.getCheckedRadioButtonId()) {
             case R.id.todo_radio_button:
-                mTaskState = State.Todo;
+                mTask.setState(State.Todo);
                 break;
             case R.id.doing_radio_button:
-                mTaskState = State.Doing;
+                mTask.setState(State.Doing);
                 break;
             default:
-                mTaskState = State.Done;
+                mTask.setState(State.Done);
                 break;
         }
-        Task task = new Task(mTaskState, mTaskTitle, mTaskComment, mTaskDate);
-        mTaskRepository.insert(task);
+        mTaskRepository.insert(mTask);
     }
 
     @Override
@@ -140,7 +145,7 @@ public class NewTaskFragment extends DialogFragment {
             Calendar userSelectedCalendar = Calendar.getInstance();
             userSelectedCalendar.setTime(userSelectedDate);
             mCalendar.set(userSelectedCalendar.get(Calendar.YEAR), userSelectedCalendar.get(Calendar.MONTH), userSelectedCalendar.get(Calendar.DAY_OF_MONTH));
-            mTaskDate = mCalendar.getTime();
+            mTask.setDate(mCalendar.getTime());
             updateUI();
         }
         if (requestCode == TIME_PICKER_REQUEST_CODE) {
@@ -148,10 +153,9 @@ public class NewTaskFragment extends DialogFragment {
             Calendar userSelectedCalender = Calendar.getInstance();
             userSelectedCalender.setTime(userSelectedDate);
             mCalendar.set(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH), userSelectedCalender.get(Calendar.HOUR), userSelectedCalender.get(Calendar.MINUTE));
-            mTaskDate = mCalendar.getTime();
+            mTask.setDate(mCalendar.getTime());
             updateUI();
         }
-
     }
 
     private void findAllViews(View view) {
@@ -160,6 +164,5 @@ public class NewTaskFragment extends DialogFragment {
         mButtonDate = view.findViewById(R.id.date_button_new_task);
         mButtonTime = view.findViewById(R.id.time_button_new_task);
         mRadioGroupState = view.findViewById(R.id.radio_group_new_task_state);
-
     }
 }

@@ -22,6 +22,7 @@ public class Task {
         mTitle = title;
         mState = Utils.randomEnum(State.class);
         mDate = Utils.getRandomDate();
+        mComment="";
     }
 
     public Task(String title, State state) {
@@ -29,9 +30,10 @@ public class Task {
         mTitle = title;
         mState = state;
         mDate = Utils.getRandomDate();
+        mComment="";
     }
 
-    public Task(State state, String title, String comment) {
+    public Task(String title, State state, String comment) {
         this();
         mState = state;
         mTitle = title;
@@ -39,12 +41,20 @@ public class Task {
         mDate = Utils.getRandomDate();
     }
 
-    public Task(State state, String title, String comment, Date date) {
+    public Task(String title, State state, String comment, Date date) {
         this();
         mState = state;
         mTitle = title;
         mComment = comment;
         mDate = date;
+    }
+
+    public Task(String title, State state, Date date) {
+        this();
+        mState = state;
+        mTitle = title;
+        mDate = date;
+        mComment="";
     }
 
     public UUID getID() {

@@ -17,10 +17,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.fragment.NewTaskFragment;
+import com.hfad.taskmanager.controller.fragment.TaskDetailFragment;
 import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
-import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
 
 import java.util.ArrayList;
@@ -71,8 +70,8 @@ public class TaskPagerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "button activity");
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
-                NewTaskFragment newTaskFragment = NewTaskFragment.newInstance();
-                newTaskFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
+                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null);
+                newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
                 adapter.notifyItemRangeChanged(0,3);*/
