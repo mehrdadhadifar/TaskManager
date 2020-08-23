@@ -93,6 +93,10 @@ public class Task {
         mDate = date;
     }
 
+    public void setID(UUID ID) {
+        mID = ID;
+    }
+
     @Override
     public String toString() {
         return "Task{" +

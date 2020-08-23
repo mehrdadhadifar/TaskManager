@@ -21,6 +21,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.hfad.taskmanager.R;
+import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
@@ -41,6 +42,7 @@ public class TaskDetailFragment extends DialogFragment {
     private Button mButtonDate;
     private Button mButtonTime;
     private RadioGroup mRadioGroupState;
+    private Task mUpdateTask;
     private Task mTask;
     private TaskRepository mTaskRepository;
     private Calendar mCalendar;
@@ -66,9 +68,10 @@ public class TaskDetailFragment extends DialogFragment {
         mTaskRepository = TaskRepository.getInstance();
         mCalendar = Calendar.getInstance();
         if (getArguments().getSerializable(ARG_TASK_ID) == null) {
-            mTask = new Task("", State.Todo, new Date());
+            mUpdateTask = new Task("", State.Todo, new Date());
         } else {
             mTask = mTaskRepository.get((UUID) getArguments().getSerializable(ARG_TASK_ID));
+            mUpdateTask = new Task(mTask.getTitle(), mTask.getState(), mTask.getComment(), mTask.getDate());
             mUnEditable = true;
         }
     }
@@ -89,8 +92,11 @@ public class TaskDetailFragment extends DialogFragment {
                     .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            if (mEditTextTile.getText().length() > 0)
+                            if (mEditTextTile.getText().length() > 0) {
                                 mTaskRepository.insert(buildTask());
+                                ((TaskPagerActivity) getActivity()).setUI();
+                            } else
+                                Toast.makeText(getActivity(), "Task title must not be empty!", Toast.LENGTH_LONG).show();
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -102,8 +108,12 @@ public class TaskDetailFragment extends DialogFragment {
                     .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            if (mEditTextTile.getText().length() > 0)
+                            if (mEditTextTile.getText().length() > 0) {
+                                mUpdateTask.setID(mTask.getID());
                                 mTaskRepository.update(buildTask());
+                                ((TaskPagerActivity) getActivity()).setUI();
+                            } else
+                                Toast.makeText(getActivity(), "Task title must not be empty!", Toast.LENGTH_LONG).show();
                         }
                     })
                     .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
@@ -111,12 +121,12 @@ public class TaskDetailFragment extends DialogFragment {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             deleteTask();
                             Toast.makeText(getActivity(), "Your task has been deleted!!", Toast.LENGTH_LONG).show();
+                            ((TaskPagerActivity) getActivity()).setUI();
                         }
                     })
                     .setNeutralButton("Edit", null)
                     .create();
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
                     Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
@@ -140,16 +150,17 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
     private void deleteTask() {
-        mTaskRepository.delete(mTask);
+        mUpdateTask.setID(mTask.getID());
+        mTaskRepository.delete(mUpdateTask);
     }
 
     private void updateUI() {
-        mEditTextTile.setText(mTask.getTitle());
-        mEditTextComment.setText(mTask.getComment());
-        mCalendar.setTime(mTask.getDate());
+        mEditTextTile.setText(mUpdateTask.getTitle());
+        mEditTextComment.setText(mUpdateTask.getComment());
+        mCalendar.setTime(mUpdateTask.getDate());
         mButtonDate.setText(mCalendar.get(Calendar.YEAR) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.DAY_OF_MONTH));
         mButtonTime.setText(mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE) + ":" + mCalendar.get(Calendar.SECOND));
-        switch (mTask.getState()) {
+        switch (mUpdateTask.getState()) {
             case Todo:
                 mRadioGroupState.check(R.id.todo_radio_button);
                 break;
@@ -175,7 +186,7 @@ public class TaskDetailFragment extends DialogFragment {
         mButtonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mTask.getDate());
+                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mUpdateTask.getDate());
                 datePickerFragment.setTargetFragment(TaskDetailFragment.this, DATE_PICKER_REQUEST_CODE);
                 datePickerFragment.show(getFragmentManager(), DIALOG_DATE_FRAGMENT_TAG);
             }
@@ -183,7 +194,7 @@ public class TaskDetailFragment extends DialogFragment {
         mButtonTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerFragment timePickerFragment = TimePickerFragment.newInstance(mTask.getDate());
+                TimePickerFragment timePickerFragment = TimePickerFragment.newInstance(mUpdateTask.getDate());
                 timePickerFragment.setTargetFragment(TaskDetailFragment.this, TIME_PICKER_REQUEST_CODE);
                 timePickerFragment.show(getFragmentManager(), DIALOG_TIME_FRAGMENT_TAG);
             }
@@ -201,7 +212,7 @@ public class TaskDetailFragment extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mTask.setTitle(mEditTextTile.getText().toString());
+                mUpdateTask.setTitle(mEditTextTile.getText().toString());
             }
         });
         mEditTextComment.addTextChangedListener(new TextWatcher() {
@@ -217,7 +228,7 @@ public class TaskDetailFragment extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mTask.setComment(mEditTextComment.getText().toString());
+                mUpdateTask.setComment(mEditTextComment.getText().toString());
             }
         });
         mRadioGroupState.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -225,13 +236,13 @@ public class TaskDetailFragment extends DialogFragment {
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 switch (i) {
                     case R.id.todo_radio_button:
-                        mTask.setState(State.Todo);
+                        mUpdateTask.setState(State.Todo);
                         break;
                     case R.id.doing_radio_button:
-                        mTask.setState(State.Doing);
+                        mUpdateTask.setState(State.Doing);
                         break;
                     default:
-                        mTask.setState(State.Done);
+                        mUpdateTask.setState(State.Done);
                         break;
                 }
             }
@@ -239,20 +250,20 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
     private Task buildTask() {
-        mTask.setTitle(mEditTextTile.getText().toString());
-        mTask.setComment(mEditTextComment.getText().toString());
+        mUpdateTask.setTitle(mEditTextTile.getText().toString());
+        mUpdateTask.setComment(mEditTextComment.getText().toString());
         switch (mRadioGroupState.getCheckedRadioButtonId()) {
             case R.id.todo_radio_button:
-                mTask.setState(State.Todo);
+                mUpdateTask.setState(State.Todo);
                 break;
             case R.id.doing_radio_button:
-                mTask.setState(State.Doing);
+                mUpdateTask.setState(State.Doing);
                 break;
             default:
-                mTask.setState(State.Done);
+                mUpdateTask.setState(State.Done);
                 break;
         }
-        return mTask;
+        return mUpdateTask;
     }
 
     @Override
@@ -264,7 +275,7 @@ public class TaskDetailFragment extends DialogFragment {
             Calendar userSelectedCalendar = Calendar.getInstance();
             userSelectedCalendar.setTime(userSelectedDate);
             mCalendar.set(userSelectedCalendar.get(Calendar.YEAR), userSelectedCalendar.get(Calendar.MONTH), userSelectedCalendar.get(Calendar.DAY_OF_MONTH));
-            mTask.setDate(mCalendar.getTime());
+            mUpdateTask.setDate(mCalendar.getTime());
             updateUI();
         }
         if (requestCode == TIME_PICKER_REQUEST_CODE) {
@@ -272,11 +283,7 @@ public class TaskDetailFragment extends DialogFragment {
             Calendar userSelectedCalender = Calendar.getInstance();
             userSelectedCalender.setTime(userSelectedDate);
             mCalendar.set(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH), userSelectedCalender.get(Calendar.HOUR), userSelectedCalender.get(Calendar.MINUTE));
-            mTask.setDate(mCalendar.getTime());
-            updateUI();
-        }
-        if (requestCode == 2) {
-            mUnEditable = data.getBooleanExtra("Booolean", true);
+            mUpdateTask.setDate(mCalendar.getTime());
             updateUI();
         }
     }

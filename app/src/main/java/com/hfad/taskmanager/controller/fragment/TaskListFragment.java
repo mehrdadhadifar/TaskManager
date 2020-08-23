@@ -219,7 +219,6 @@ public class TaskListFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (data == null || resultCode != Activity.RESULT_OK)
             return;
-
         if (requestCode == TASK_DETAIL_REQUEST_CODE) {
             updateUI();
         }

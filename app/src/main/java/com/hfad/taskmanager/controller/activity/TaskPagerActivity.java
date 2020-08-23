@@ -48,10 +48,9 @@ public class TaskPagerActivity extends AppCompatActivity {
     }
 
 
-    private void setUI() {
+    public void setUI() {
         final FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
         mTaskViewPager.setAdapter(adapter);
-
         new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
@@ -75,9 +74,9 @@ public class TaskPagerActivity extends AppCompatActivity {
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
                 adapter.notifyItemRangeChanged(0,3);*/
-                int position = mTaskViewPager.getCurrentItem();
-                setUI();
-                mTaskViewPager.setCurrentItem(position);
+//                int position = mTaskViewPager.getCurrentItem();
+//                setUI();
+//                mTaskViewPager.setCurrentItem(position);
             }
         });
 
