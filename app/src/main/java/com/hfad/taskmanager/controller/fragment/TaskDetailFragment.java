@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,7 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-//TODO : Handel configuration change mTaskDate
 
 public class TaskDetailFragment extends DialogFragment {
     public static final int DATE_PICKER_REQUEST_CODE = 0;
@@ -40,10 +41,6 @@ public class TaskDetailFragment extends DialogFragment {
     private Button mButtonTime;
     private RadioGroup mRadioGroupState;
     private Task mTask;
-    private String mTaskTitle;
-    private String mTaskComment;
-    private State mTaskState;
-    private Date mTaskDate;
     private TaskRepository mTaskRepository;
     private Calendar mCalendar;
 
@@ -64,12 +61,13 @@ public class TaskDetailFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments().getSerializable(ARG_TASK_ID) == null) {
-            mTask = new Task("", State.Todo,new Date());
-        }
-//        mTaskDate = new Date();
         mTaskRepository = TaskRepository.getInstance();
         mCalendar = Calendar.getInstance();
+        if (getArguments().getSerializable(ARG_TASK_ID) == null) {
+            mTask = new Task("", State.Todo, new Date());
+        } else
+            mTask = mTaskRepository.get((UUID) getArguments().getSerializable(ARG_TASK_ID));
+//        mTaskDate = new Date();
     }
 
     @NonNull
@@ -80,24 +78,54 @@ public class TaskDetailFragment extends DialogFragment {
         findAllViews(view);
         updateUI();
         setonClickListeners();
+        if (getArguments().getSerializable(ARG_TASK_ID) == null)
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle("New Task")
+                    .setView(view)
+                    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (mEditTextTile.getText().length() > 0)
+                                mTaskRepository.insert(buildTask());
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+        else
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle("Task Details")
+                    .setView(view)
+                    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (mEditTextTile.getText().length() > 0)
+                                mTaskRepository.update(buildTask());
+                        }
+                    })
+                    .create();
+    }
 
-        return new AlertDialog.Builder(getActivity())
-                .setView(view)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (mEditTextTile.getText().length() > 0)
-                            buildTask();
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .create();
+    private void updateTask() {
+
     }
 
     private void updateUI() {
+        mEditTextTile.setText(mTask.getTitle());
+        mEditTextComment.setText(mTask.getComment());
         mCalendar.setTime(mTask.getDate());
         mButtonDate.setText(mCalendar.get(Calendar.YEAR) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.DAY_OF_MONTH));
         mButtonTime.setText(mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE) + ":" + mCalendar.get(Calendar.SECOND));
+        switch (mTask.getState()) {
+            case Todo:
+                mRadioGroupState.check(R.id.todo_radio_button);
+                break;
+            case Done:
+                mRadioGroupState.check(R.id.done_radio_button);
+                break;
+            default:
+                mRadioGroupState.check(R.id.doing_radio_button);
+                break;
+        }
     }
 
     private void setonClickListeners() {
@@ -117,9 +145,57 @@ public class TaskDetailFragment extends DialogFragment {
                 timePickerFragment.show(getFragmentManager(), DIALOG_TIME_FRAGMENT_TAG);
             }
         });
+        mEditTextTile.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mTask.setTitle(mEditTextTile.getText().toString());
+            }
+        });
+        mEditTextComment.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mTask.setComment(mEditTextComment.getText().toString());
+            }
+        });
+        mRadioGroupState.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i) {
+                    case R.id.todo_radio_button:
+                        mTask.setState(State.Todo);
+                        break;
+                    case R.id.doing_radio_button:
+                        mTask.setState(State.Doing);
+                        break;
+                    default:
+                        mTask.setState(State.Done);
+                        break;
+                }
+            }
+        });
     }
 
-    private void buildTask() {
+    private Task buildTask() {
         mTask.setTitle(mEditTextTile.getText().toString());
         mTask.setComment(mEditTextComment.getText().toString());
         switch (mRadioGroupState.getCheckedRadioButtonId()) {
@@ -133,7 +209,7 @@ public class TaskDetailFragment extends DialogFragment {
                 mTask.setState(State.Done);
                 break;
         }
-        mTaskRepository.insert(mTask);
+        return mTask;
     }
 
     @Override

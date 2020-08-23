@@ -1,5 +1,7 @@
 package com.hfad.taskmanager.controller.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -11,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +32,8 @@ import java.util.UUID;
 public class TaskListFragment extends Fragment {
     public static final String TAG = "TLF";
     private static final String ARG_STATES = "ARG_USERNAME";
+    public static final int TASK_DETAIL_REQUEST_CODE = 0;
+    public static final String TASK_DETAIL_FRAGMENT_TAG = "TASK_DETAIL_FRAGMENT_TAG";
     private RecyclerView mRecyclerViewTasks;
     private LinearLayout mLinearLayoutEmpty;
     private TaskRepository mTaskRepository;
@@ -119,6 +124,7 @@ public class TaskListFragment extends Fragment {
         private LinearLayout mLinearLayoutMain;
         private TextView mTextViewComment;
         private TextView mTextViewDate;
+        private Task mTask;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
@@ -127,9 +133,19 @@ public class TaskListFragment extends Fragment {
             mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
             mTextViewComment = itemView.findViewById(R.id.recycle_view_tasks_text_view_comment);
             mTextViewDate = itemView.findViewById(R.id.recycle_view_tasks_text_view_date);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID());
+                    setTargetFragment(taskDetailFragment, TASK_DETAIL_REQUEST_CODE);
+                    taskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
+                }
+            });
         }
 
         public void bindTask(Task task) {
+            mTask = task;
             if (getItemViewType() == 1) {
                 mTextViewTitle.setText(task.getTitle());
                 mTextViewState.setText(task.getState().toString());
@@ -137,6 +153,7 @@ public class TaskListFragment extends Fragment {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(task.getDate());
                 mTextViewDate.setText(DateUtils.formatDateTime(getActivity(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
+//                mTextViewDate.setText(calendar.get(Calendar.MONTH));
                 if (getStateListPosition(task.getID()) % 2 == 1)
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else
@@ -191,11 +208,20 @@ public class TaskListFragment extends Fragment {
             Task task = mTasks.get(position);
             holder.bindTask(task);
         }
-
     }
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
         mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (data == null || resultCode != Activity.RESULT_OK)
+            return;
+
+        if (requestCode == TASK_DETAIL_REQUEST_CODE) {
+            updateUI();
+        }
     }
 }
