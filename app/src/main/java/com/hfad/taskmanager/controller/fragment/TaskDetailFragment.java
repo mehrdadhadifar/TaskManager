@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
@@ -43,6 +44,7 @@ public class TaskDetailFragment extends DialogFragment {
     private Task mTask;
     private TaskRepository mTaskRepository;
     private Calendar mCalendar;
+    private boolean mUnEditable;
 
 
     public TaskDetailFragment() {
@@ -65,9 +67,10 @@ public class TaskDetailFragment extends DialogFragment {
         mCalendar = Calendar.getInstance();
         if (getArguments().getSerializable(ARG_TASK_ID) == null) {
             mTask = new Task("", State.Todo, new Date());
-        } else
+        } else {
             mTask = mTaskRepository.get((UUID) getArguments().getSerializable(ARG_TASK_ID));
-//        mTaskDate = new Date();
+            mUnEditable = true;
+        }
     }
 
     @NonNull
@@ -78,8 +81,9 @@ public class TaskDetailFragment extends DialogFragment {
         findAllViews(view);
         updateUI();
         setonClickListeners();
+        final AlertDialog dialog;
         if (getArguments().getSerializable(ARG_TASK_ID) == null)
-            return new AlertDialog.Builder(getActivity())
+            dialog = new AlertDialog.Builder(getActivity())
                     .setTitle("New Task")
                     .setView(view)
                     .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -91,8 +95,8 @@ public class TaskDetailFragment extends DialogFragment {
                     })
                     .setNegativeButton("Cancel", null)
                     .create();
-        else
-            return new AlertDialog.Builder(getActivity())
+        else {
+            dialog = new AlertDialog.Builder(getActivity())
                     .setTitle("Task Details")
                     .setView(view)
                     .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -102,11 +106,41 @@ public class TaskDetailFragment extends DialogFragment {
                                 mTaskRepository.update(buildTask());
                         }
                     })
+                    .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            deleteTask();
+                            Toast.makeText(getActivity(), "Your task has been deleted!!", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNeutralButton("Edit", null)
                     .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mUnEditable = !mUnEditable;
+                            mEditTextTile.setEnabled(true);
+                            mEditTextComment.setEnabled(true);
+                            mButtonDate.setEnabled(true);
+                            mButtonTime.setEnabled(true);
+                            for (int i = 0; i < mRadioGroupState.getChildCount(); i++) {
+                                (mRadioGroupState.getChildAt(i)).setEnabled(true);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return dialog;
     }
 
-    private void updateTask() {
-
+    private void deleteTask() {
+        mTaskRepository.delete(mTask);
     }
 
     private void updateUI() {
@@ -125,6 +159,15 @@ public class TaskDetailFragment extends DialogFragment {
             default:
                 mRadioGroupState.check(R.id.doing_radio_button);
                 break;
+        }
+        if (mUnEditable) {
+            mEditTextTile.setEnabled(false);
+            mEditTextComment.setEnabled(false);
+            mButtonDate.setEnabled(false);
+            mButtonTime.setEnabled(false);
+            for (int i = 0; i < mRadioGroupState.getChildCount(); i++) {
+                (mRadioGroupState.getChildAt(i)).setEnabled(false);
+            }
         }
     }
 
@@ -230,6 +273,10 @@ public class TaskDetailFragment extends DialogFragment {
             userSelectedCalender.setTime(userSelectedDate);
             mCalendar.set(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH), userSelectedCalender.get(Calendar.HOUR), userSelectedCalender.get(Calendar.MINUTE));
             mTask.setDate(mCalendar.getTime());
+            updateUI();
+        }
+        if (requestCode == 2) {
+            mUnEditable = data.getBooleanExtra("Booolean", true);
             updateUI();
         }
     }
