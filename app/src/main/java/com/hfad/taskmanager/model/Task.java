@@ -11,6 +11,7 @@ public class Task {
     private String mTitle;
     private String mComment;
     private Date mDate;
+    private UUID mUserId;
 
 
     private Task() {
@@ -95,6 +96,14 @@ public class Task {
 
     public void setID(UUID ID) {
         mID = ID;
+    }
+
+    public UUID getUserId() {
+        return mUserId;
+    }
+
+    public void setUserId(UUID userId) {
+        mUserId = userId;
     }
 
     @Override

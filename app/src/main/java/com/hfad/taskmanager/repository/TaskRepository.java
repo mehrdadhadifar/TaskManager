@@ -17,6 +17,18 @@ public class TaskRepository implements IRepository<Task> {
         return sTaskRepository;
     }
 
+    public List<Task> getUserTasks(UUID userId) {
+        List<Task> userTaskList = new ArrayList<>();
+        UserRepository userRepository = UserRepository.getInstance();
+        if (userRepository.get(userId).getRole() == 1)
+            return mTasks;
+        for (int i = 0; i < mTasks.size(); i++) {
+            if (mTasks.get(i).getUserId().equals(userId))
+                userTaskList.add(mTasks.get(i));
+        }
+        return userTaskList;
+    }
+
     private List<Task> mTasks;
 
     public void setTasks(List<Task> tasks) {
@@ -29,11 +41,11 @@ public class TaskRepository implements IRepository<Task> {
     }
 
     private TaskRepository() {
-        mTasks = new ArrayList<Task>();
+        mTasks = new ArrayList<>();
     }
 
     @Override
-    public List getList() {
+    public List<Task> getList() {
         return mTasks;
     }
 
