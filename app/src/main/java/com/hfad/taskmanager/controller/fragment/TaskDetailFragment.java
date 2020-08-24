@@ -74,7 +74,7 @@ public class TaskDetailFragment extends DialogFragment {
         mUserRepository = UserRepository.getInstance();
         mCalendar = Calendar.getInstance();
         if (getArguments().getSerializable(ARG_TASK_ID) == null) {
-            mUpdateTask = new Task("", State.Todo, new Date());
+            mUpdateTask = new Task("", State.Todo);
         } else {
             mTask = mTaskRepository.get((UUID) getArguments().getSerializable(ARG_TASK_ID));
             mUpdateTask = new Task(mTask.getTitle(), mTask.getState(), mTask.getComment(), mTask.getDate());

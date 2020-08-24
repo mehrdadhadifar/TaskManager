@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.pavlospt.roundedletterview.RoundedLetterView;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
@@ -46,10 +47,10 @@ public class TaskListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TaskListFragment newInstance(List<State> stateList,UUID userId) {
+    public static TaskListFragment newInstance(List<State> stateList, UUID userId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_STATES, (Serializable) stateList);
-        args.putSerializable(ARG_USER_UUID,userId);
+        args.putSerializable(ARG_USER_UUID, userId);
         TaskListFragment taskListFragment = new TaskListFragment();
         taskListFragment.setArguments(args);
         return taskListFragment;
@@ -64,7 +65,7 @@ public class TaskListFragment extends Fragment {
 
     private void initList() {
         mStateList = (List<State>) getArguments().getSerializable(ARG_STATES);
-        mUserId= (UUID) getArguments().getSerializable(ARG_USER_UUID);
+        mUserId = (UUID) getArguments().getSerializable(ARG_USER_UUID);
         mTaskRepository = TaskRepository.getInstance();
     }
 
@@ -90,8 +91,8 @@ public class TaskListFragment extends Fragment {
 
 
     private int getStateListPosition(UUID uuid) {
-        for (int i = 0; i < mTaskRepository.getTasksByUserPerStates(mUserId,mStateList).size(); i++) {
-            if (uuid.equals(mTaskRepository.getTasksByUserPerStates(mUserId,mStateList).get(i).getID())) {
+        for (int i = 0; i < mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).size(); i++) {
+            if (uuid.equals(mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).get(i).getID())) {
                 return i;
             }
         }
@@ -100,7 +101,7 @@ public class TaskListFragment extends Fragment {
 
     private void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
-        List<Task> tasks = mTaskRepository.getTasksByUserPerStates(mUserId,mStateList);
+        List<Task> tasks = mTaskRepository.getTasksByUserPerStates(mUserId, mStateList);
 
         if (tasks.size() == 0) {
             mLinearLayoutEmpty.setVisibility(View.VISIBLE);
@@ -128,6 +129,7 @@ public class TaskListFragment extends Fragment {
         private TextView mTextViewComment;
         private TextView mTextViewDate;
         private Task mTask;
+        private RoundedLetterView mRoundedLetterView;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
@@ -136,11 +138,13 @@ public class TaskListFragment extends Fragment {
             mLinearLayoutMain = itemView.findViewById(R.id.recycle_view_tasks_main_linear_layout);
             mTextViewComment = itemView.findViewById(R.id.recycle_view_tasks_text_view_comment);
             mTextViewDate = itemView.findViewById(R.id.recycle_view_tasks_text_view_date);
+            mRoundedLetterView = itemView.findViewById(R.id.rlv_name_view);
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID(),mUserId);
+                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID(), mUserId);
                     setTargetFragment(taskDetailFragment, TASK_DETAIL_REQUEST_CODE);
                     taskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
                 }
@@ -161,6 +165,7 @@ public class TaskListFragment extends Fragment {
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else
                     mLinearLayoutMain.setBackgroundColor((Color.WHITE));
+                mRoundedLetterView.setTitleText(String.valueOf(task.getTitle().charAt(0)));
             }
         }
     }
