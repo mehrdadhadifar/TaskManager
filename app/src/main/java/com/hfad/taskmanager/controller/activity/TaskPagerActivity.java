@@ -21,21 +21,28 @@ import com.hfad.taskmanager.controller.fragment.TaskDetailFragment;
 import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.repository.TaskRepository;
+import com.hfad.taskmanager.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
     public static final String TAG = "TPA";
     public static final String NEW_TASK_FRAGMENT = "NEW_TASK_FRAGMENT";
+    public static final String EXTRA_USER_UUID = "EXTRA_USER_UUID";
     private ViewPager2 mTaskViewPager;
     private TabLayout mTaskTabLayout;
     private FloatingActionButton mFloatingActionButtonNewTask;
     private TaskRepository mTaskRepository;
+    private UUID mUserId;
+    private UserRepository mUserRepository;
 
-    public static Intent newIntent(Context context) {
-        return new Intent(context, TaskPagerActivity.class);
+    public static Intent newIntent(Context context, UUID uuid) {
+        Intent intent = new Intent(context, TaskPagerActivity.class);
+        intent.putExtra(EXTRA_USER_UUID, uuid);
+        return intent;
     }
 
     @Override
@@ -43,12 +50,16 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         mTaskRepository = TaskRepository.getInstance();
+        mUserRepository=UserRepository.getInstance();
+        mUserId = (UUID) getIntent().getSerializableExtra(EXTRA_USER_UUID);
         findAllViews();
         setUI();
     }
 
 
     public void setUI() {
+        if(mUserRepository.get(mUserId).getRole()==1)
+            mFloatingActionButtonNewTask.setEnabled(false);
         final FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
         mTaskViewPager.setAdapter(adapter);
         new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
@@ -69,7 +80,7 @@ public class TaskPagerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "button activity");
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
-                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null);
+                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null,mUserId);
                 newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
@@ -112,7 +123,7 @@ public class TaskPagerActivity extends AppCompatActivity {
         @Override
         public Fragment createFragment(int position) {
             List<State> stateList = getStateList(position);
-            return TaskListFragment.newInstance(stateList);
+            return TaskListFragment.newInstance(stateList,mUserId);
         }
 
         @Override

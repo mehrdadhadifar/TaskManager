@@ -68,8 +68,8 @@ public class BuildListFragment extends Fragment {
                         Task task = new Task(mUsername);
                         mTaskIRepository.insert(task);
                     }
-                    Intent intent = TaskPagerActivity.newIntent(getActivity());
-                    startActivity(intent);
+//                    Intent intent = TaskPagerActivity.newIntent(getActivity(),);
+//                    startActivity(intent);
                 }
             }
         });

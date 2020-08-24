@@ -34,19 +34,22 @@ public class TaskListFragment extends Fragment {
     private static final String ARG_STATES = "ARG_USERNAME";
     public static final int TASK_DETAIL_REQUEST_CODE = 0;
     public static final String TASK_DETAIL_FRAGMENT_TAG = "TASK_DETAIL_FRAGMENT_TAG";
+    public static final String ARG_USER_UUID = "ARG_USER_UUID";
     private RecyclerView mRecyclerViewTasks;
     private LinearLayout mLinearLayoutEmpty;
     private TaskRepository mTaskRepository;
     private TaskAdapter mTaskAdapter;
     private List<State> mStateList;
+    private UUID mUserId;
 
     public TaskListFragment() {
         // Required empty public constructor
     }
 
-    public static TaskListFragment newInstance(List<State> stateList) {
+    public static TaskListFragment newInstance(List<State> stateList,UUID userId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_STATES, (Serializable) stateList);
+        args.putSerializable(ARG_USER_UUID,userId);
         TaskListFragment taskListFragment = new TaskListFragment();
         taskListFragment.setArguments(args);
         return taskListFragment;
@@ -61,8 +64,8 @@ public class TaskListFragment extends Fragment {
 
     private void initList() {
         mStateList = (List<State>) getArguments().getSerializable(ARG_STATES);
+        mUserId= (UUID) getArguments().getSerializable(ARG_USER_UUID);
         mTaskRepository = TaskRepository.getInstance();
-
     }
 
     @Override
@@ -87,8 +90,8 @@ public class TaskListFragment extends Fragment {
 
 
     private int getStateListPosition(UUID uuid) {
-        for (int i = 0; i < mTaskRepository.getListByStates(mStateList).size(); i++) {
-            if (uuid.equals(mTaskRepository.getListByStates(mStateList).get(i).getID())) {
+        for (int i = 0; i < mTaskRepository.getTasksByUserPerStates(mUserId,mStateList).size(); i++) {
+            if (uuid.equals(mTaskRepository.getTasksByUserPerStates(mUserId,mStateList).get(i).getID())) {
                 return i;
             }
         }
@@ -97,7 +100,7 @@ public class TaskListFragment extends Fragment {
 
     private void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
-        List<Task> tasks = mTaskRepository.getListByStates(mStateList);
+        List<Task> tasks = mTaskRepository.getTasksByUserPerStates(mUserId,mStateList);
 
         if (tasks.size() == 0) {
             mLinearLayoutEmpty.setVisibility(View.VISIBLE);
@@ -137,7 +140,7 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID());
+                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID(),mUserId);
                     setTargetFragment(taskDetailFragment, TASK_DETAIL_REQUEST_CODE);
                     taskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
                 }

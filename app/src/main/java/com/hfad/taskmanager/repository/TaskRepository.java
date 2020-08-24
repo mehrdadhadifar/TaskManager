@@ -118,4 +118,19 @@ public class TaskRepository implements IRepository<Task> {
         }
         return tasksByStates;
     }
+
+    public List<Task> getTasksByUserPerStates(UUID userId, List<State> stateList) {
+        UserRepository userRepository = UserRepository.getInstance();
+        if (userRepository.get(userId).getRole() == 1)
+            return getListByStates(stateList);
+        List<Task> tasks;
+        List<Task> result = new ArrayList<>();
+        tasks = getListByStates(stateList);
+        for (Task task : tasks
+        ) {
+            if (task.getUserId().equals(userId))
+                result.add(task);
+        }
+        return result;
+    }
 }

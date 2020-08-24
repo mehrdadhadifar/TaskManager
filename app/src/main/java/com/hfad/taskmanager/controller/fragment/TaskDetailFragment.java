@@ -25,6 +25,7 @@ import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
+import com.hfad.taskmanager.repository.UserRepository;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +38,7 @@ public class TaskDetailFragment extends DialogFragment {
     public static final String DIALOG_DATE_FRAGMENT_TAG = "DIALOG_DATE_FRAGMENT_TAG";
     public static final String DIALOG_TIME_FRAGMENT_TAG = "DIALOG_TIME_FRAGMENT_TAG";
     public static final String ARG_TASK_ID = "ARG_TASK_ID";
+    public static final String ARG_USER_ID = "ARG_USER_ID";
     private EditText mEditTextTile;
     private EditText mEditTextComment;
     private Button mButtonDate;
@@ -47,6 +49,8 @@ public class TaskDetailFragment extends DialogFragment {
     private TaskRepository mTaskRepository;
     private Calendar mCalendar;
     private boolean mUnEditable;
+    private UUID mUserId;
+    private UserRepository mUserRepository;
 
 
     public TaskDetailFragment() {
@@ -54,10 +58,11 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
 
-    public static TaskDetailFragment newInstance(UUID uuid) {
+    public static TaskDetailFragment newInstance(UUID taskId, UUID userId) {
         TaskDetailFragment fragment = new TaskDetailFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_TASK_ID, uuid);
+        args.putSerializable(ARG_TASK_ID, taskId);
+        args.putSerializable(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,6 +71,7 @@ public class TaskDetailFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTaskRepository = TaskRepository.getInstance();
+        mUserRepository = UserRepository.getInstance();
         mCalendar = Calendar.getInstance();
         if (getArguments().getSerializable(ARG_TASK_ID) == null) {
             mUpdateTask = new Task("", State.Todo, new Date());
@@ -74,6 +80,7 @@ public class TaskDetailFragment extends DialogFragment {
             mUpdateTask = new Task(mTask.getTitle(), mTask.getState(), mTask.getComment(), mTask.getDate());
             mUnEditable = true;
         }
+        mUserId = (UUID) getArguments().getSerializable(ARG_USER_ID);
     }
 
     @NonNull
@@ -263,6 +270,10 @@ public class TaskDetailFragment extends DialogFragment {
                 mUpdateTask.setState(State.Done);
                 break;
         }
+        if (mUserRepository.get(mUserId).getRole() == 0)
+            mUpdateTask.setUserId(mUserId);
+        else
+            mUpdateTask.setUserId(mTask.getUserId());
         return mUpdateTask;
     }
 

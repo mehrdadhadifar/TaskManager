@@ -2,6 +2,7 @@ package com.hfad.taskmanager.model;
 
 import com.hfad.taskmanager.repository.TaskRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,9 +12,11 @@ public class User {
     private String mPassword;
     private int mRole;
     private List<Task> mUserTaskList;
+    private Date mRegisterDate;
 
     private User() {
         mUUID = UUID.randomUUID();
+        mRegisterDate = new Date();
     }
 
     public User(String username, String password, int role) {

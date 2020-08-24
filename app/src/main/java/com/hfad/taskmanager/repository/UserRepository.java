@@ -29,7 +29,7 @@ public class UserRepository implements IRepository<User> {
     public User get(UUID uuid) {
         for (User user : mUsers
         ) {
-            if (user.getUUID() == uuid)
+            if (user.getUUID().equals(uuid))
                 return user;
         }
         return null;
