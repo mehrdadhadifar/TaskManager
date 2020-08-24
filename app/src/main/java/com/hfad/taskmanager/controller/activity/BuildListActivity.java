@@ -18,6 +18,4 @@ public class BuildListActivity extends SingleFragmentActivity {
     public Fragment createFragment() {
         return BuildListFragment.newInstance();
     }
-
-
 }

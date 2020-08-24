@@ -73,13 +73,12 @@ public class TaskPagerActivity extends AppCompatActivity {
                 newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
-                adapter.notifyItemRangeChanged(0,3);*/
+                adapter.notifyItemRangeChanged(0,3);
 //                int position = mTaskViewPager.getCurrentItem();
 //                setUI();
-//                mTaskViewPager.setCurrentItem(position);
+//                mTaskViewPager.setCurrentItem(position);*/
             }
         });
-
 /*        mTaskViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

@@ -12,16 +12,10 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.activity.TaskListActivity;
 import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
-import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.IRepository;
 import com.hfad.taskmanager.repository.TaskRepository;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 public class BuildListFragment extends Fragment {
@@ -74,8 +68,6 @@ public class BuildListFragment extends Fragment {
                         Task task = new Task(mUsername);
                         mTaskIRepository.insert(task);
                     }
-//                    List<State> stateList= Arrays.asList(State.values());
-//                    Intent intent = TaskListActivity.newIntent(getActivity(),stateList );
                     Intent intent = TaskPagerActivity.newIntent(getActivity());
                     startActivity(intent);
                 }
