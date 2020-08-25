@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.SignUpActivity;
 import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
+import com.hfad.taskmanager.controller.activity.UserListActivity;
 import com.hfad.taskmanager.repository.UserRepository;
 
 
@@ -68,7 +69,11 @@ public class LoginFragment extends Fragment {
                 for (i = 0; i < mUserRepository.getList().size(); i++) {
                     if (mUserRepository.getList().get(i).getUsername().equals(mEditTextUsername.getText().toString())
                             && mUserRepository.getList().get(i).getPassword().equals(mEditTextPassword.getText().toString())) {
-                        Intent intent = TaskPagerActivity.newIntent(getActivity(), mUserRepository.getList().get(i).getUUID());
+                        Intent intent;
+                        if (mUserRepository.getList().get(i).getRole() == 0)
+                            intent = TaskPagerActivity.newIntent(getActivity(), mUserRepository.getList().get(i).getUUID());
+                        else
+                            intent = UserListActivity.newIntent(getActivity(), mUserRepository.getList().get(i).getUUID());
                         startActivity(intent);
                         Toast.makeText(getActivity(), mUserRepository.getList().get(i).getUsername() + " Welcome", Toast.LENGTH_LONG).show();
                         break;

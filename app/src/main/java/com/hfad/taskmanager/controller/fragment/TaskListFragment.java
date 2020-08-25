@@ -140,7 +140,6 @@ public class TaskListFragment extends Fragment {
             mTextViewDate = itemView.findViewById(R.id.recycle_view_tasks_text_view_date);
             mRoundedLetterView = itemView.findViewById(R.id.rlv_name_view);
 
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
