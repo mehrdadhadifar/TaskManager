@@ -1,10 +1,13 @@
 package com.hfad.taskmanager.controller.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +23,7 @@ import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.fragment.TaskDetailFragment;
 import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
+import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskRepository;
 import com.hfad.taskmanager.repository.UserRepository;
 
@@ -38,6 +42,8 @@ public class TaskPagerActivity extends AppCompatActivity {
     private TaskRepository mTaskRepository;
     private UUID mUserId;
     private UserRepository mUserRepository;
+    private Button mButtonDeleteAll;
+    private Button mButtonSignOut;
 
     public static Intent newIntent(Context context, UUID uuid) {
         Intent intent = new Intent(context, TaskPagerActivity.class);
@@ -50,37 +56,20 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         mTaskRepository = TaskRepository.getInstance();
-        mUserRepository=UserRepository.getInstance();
+        mUserRepository = UserRepository.getInstance();
         mUserId = (UUID) getIntent().getSerializableExtra(EXTRA_USER_UUID);
         findAllViews();
         setUI();
+        setonClickListeners();
     }
 
-
-    public void setUI() {
-        if(mUserRepository.get(mUserId).getRole()==1)
-            mFloatingActionButtonNewTask.setEnabled(false);
-        final FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
-        mTaskViewPager.setAdapter(adapter);
-        new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override
-                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        if (position == 0)
-                            tab.setText("TODO");
-                        else if (position == 1)
-                            tab.setText("DOING");
-                        else
-                            tab.setText("DONE");
-                    }
-                }
-        ).attach();
+    private void setonClickListeners() {
         mFloatingActionButtonNewTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "button activity");
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
-                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null,mUserId);
+                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null, mUserId);
                 newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
 /*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
                 adapter.notifyDataSetChanged();
@@ -88,8 +77,10 @@ public class TaskPagerActivity extends AppCompatActivity {
 //                int position = mTaskViewPager.getCurrentItem();
 //                setUI();
 //                mTaskViewPager.setCurrentItem(position);*/
+
             }
         });
+
 /*        mTaskViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -112,6 +103,53 @@ public class TaskPagerActivity extends AppCompatActivity {
                 super.onPageScrollStateChanged(state);
             }
         });*/
+        mButtonDeleteAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(TaskPagerActivity.this)
+                        .setTitle("Are sure to delete all tasks?")
+                        .setPositiveButton("comfirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
+                                for (int j = 0; j < list.size(); j++) {
+                                    mTaskRepository.delete(list.get(j));
+                                }
+                                setUI();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create().show();
+            }
+        });
+        mButtonSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+    }
+
+
+    public void setUI() {
+        if (mUserRepository.get(mUserId).getRole() == 1)
+            mFloatingActionButtonNewTask.setEnabled(false);
+        final FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
+        mTaskViewPager.setAdapter(adapter);
+        new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        if (position == 0)
+                            tab.setText("TODO");
+                        else if (position == 1)
+                            tab.setText("DOING");
+                        else
+                            tab.setText("DONE");
+                    }
+                }
+        ).attach();
+
     }
 
     private class TaskViewPagerAdapter extends FragmentStateAdapter {
@@ -123,7 +161,7 @@ public class TaskPagerActivity extends AppCompatActivity {
         @Override
         public Fragment createFragment(int position) {
             List<State> stateList = getStateList(position);
-            return TaskListFragment.newInstance(stateList,mUserId);
+            return TaskListFragment.newInstance(stateList, mUserId);
         }
 
         @Override
@@ -147,11 +185,11 @@ public class TaskPagerActivity extends AppCompatActivity {
         }
         return stateList;
     }
-
-
     private void findAllViews() {
         mTaskViewPager = findViewById(R.id.task_view_pager);
         mTaskTabLayout = findViewById(R.id.task_tab_layout);
         mFloatingActionButtonNewTask = findViewById(R.id.floating_Action_Button_add_pager);
+        mButtonSignOut = findViewById(R.id.button_sign_out);
+        mButtonDeleteAll = findViewById(R.id.button_delete_all);
     }
 }

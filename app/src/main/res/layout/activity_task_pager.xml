@@ -11,22 +11,43 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/task_tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-    </com.google.android.material.tabs.TabLayout>
+        android:layout_height="wrap_content" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/task_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="7" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_Action_Button_add_pager"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:clickable="true"
-        android:src="@android:drawable/ic_input_add" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_sign_out"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:text="Sign out" />
+
+        <Button
+            android:id="@+id/button_delete_all"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Delete All Tasks" />
+
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floating_Action_Button_add_pager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:src="@android:drawable/ic_input_add" />
+
+    </LinearLayout>
 </LinearLayout>

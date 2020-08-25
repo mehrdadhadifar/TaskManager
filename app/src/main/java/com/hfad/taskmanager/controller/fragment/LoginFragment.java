@@ -2,17 +2,14 @@ package com.hfad.taskmanager.controller.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.SignUpActivity;
@@ -26,7 +23,6 @@ public class LoginFragment extends Fragment {
     private EditText mEditTextPassword;
     private Button mButtonLogin;
     private Button mButtonSignUp;
-    private CheckBox mCheckBoxAdmin;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -87,7 +83,6 @@ public class LoginFragment extends Fragment {
     private void findAllViews(View view) {
         mEditTextUsername = view.findViewById(R.id.editText_username_login);
         mEditTextPassword = view.findViewById(R.id.editText_password_login);
-        mCheckBoxAdmin = view.findViewById(R.id.checkBox_admin);
         mButtonLogin = view.findViewById(R.id.button_login);
         mButtonSignUp = view.findViewById(R.id.button_sign_up);
     }
