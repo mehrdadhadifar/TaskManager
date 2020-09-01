@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -42,8 +45,9 @@ public class TaskPagerActivity extends AppCompatActivity {
     private TaskRepository mTaskRepository;
     private UUID mUserId;
     private UserRepository mUserRepository;
-    private Button mButtonDeleteAll;
-    private Button mButtonSignOut;
+
+    FragmentStateAdapter adapter;
+
 
     public static Intent newIntent(Context context, UUID uuid) {
         Intent intent = new Intent(context, TaskPagerActivity.class);
@@ -103,38 +107,15 @@ public class TaskPagerActivity extends AppCompatActivity {
                 super.onPageScrollStateChanged(state);
             }
         });*/
-        mButtonDeleteAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(TaskPagerActivity.this)
-                        .setTitle("Are sure to delete all tasks?")
-                        .setPositiveButton("comfirm", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
-                                for (int j = 0; j < list.size(); j++) {
-                                    mTaskRepository.delete(list.get(j));
-                                }
-                                setUI();
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .create().show();
-            }
-        });
-        mButtonSignOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
     }
 
 
     public void setUI() {
+        getSupportActionBar().setSubtitle(mUserRepository.get(mUserId).getUsername()+" Tasks");
         if (mUserRepository.get(mUserId).getRole() == 1)
             mFloatingActionButtonNewTask.setEnabled(false);
-        final FragmentStateAdapter adapter = new TaskViewPagerAdapter(this);
+//        if (adapterr == null) {
+        adapter = new TaskViewPagerAdapter(this);
         mTaskViewPager.setAdapter(adapter);
         new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
                 new TabLayoutMediator.TabConfigurationStrategy() {
@@ -149,7 +130,15 @@ public class TaskPagerActivity extends AppCompatActivity {
                     }
                 }
         ).attach();
-
+/*        } else {
+//            adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
+            adapter.createFragment(mTaskViewPager.getCurrentItem());
+            adapter.notifyDataSetChanged();
+            adapter.notifyItemRangeChanged(0, 3);
+            synchronized (adapter) {
+                adapter.notifyAll();
+            }
+        }*/
     }
 
     private class TaskViewPagerAdapter extends FragmentStateAdapter {
@@ -185,11 +174,45 @@ public class TaskPagerActivity extends AppCompatActivity {
         }
         return stateList;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_user, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_all:
+                new AlertDialog.Builder(TaskPagerActivity.this)
+                        .setTitle("Are sure to delete all tasks?")
+                        .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
+                                for (int j = 0; j < list.size(); j++) {
+                                    mTaskRepository.delete(list.get(j));
+                                }
+                                setUI();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create().show();
+                return true;
+            case R.id.menu_item_sign_out:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
     private void findAllViews() {
         mTaskViewPager = findViewById(R.id.task_view_pager);
         mTaskTabLayout = findViewById(R.id.task_tab_layout);
         mFloatingActionButtonNewTask = findViewById(R.id.floating_Action_Button_add_pager);
-        mButtonSignOut = findViewById(R.id.button_sign_out);
-        mButtonDeleteAll = findViewById(R.id.button_delete_all);
     }
 }
