@@ -22,7 +22,7 @@ import com.github.pavlospt.roundedletterview.RoundedLetterView;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
-import com.hfad.taskmanager.repository.TaskRepository;
+import com.hfad.taskmanager.repository.TaskDBRepository;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -38,16 +38,16 @@ public class TaskListFragment extends Fragment {
     public static final String ARG_USER_UUID = "ARG_USER_UUID";
     private RecyclerView mRecyclerViewTasks;
     private LinearLayout mLinearLayoutEmpty;
-    private TaskRepository mTaskRepository;
+    private TaskDBRepository mTaskRepository;
     private TaskAdapter mTaskAdapter;
     private List<State> mStateList;
-    private UUID mUserId;
+    private long mUserId;
 
     public TaskListFragment() {
         // Required empty public constructor
     }
 
-    public static TaskListFragment newInstance(List<State> stateList, UUID userId) {
+    public static TaskListFragment newInstance(List<State> stateList, long userId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_STATES, (Serializable) stateList);
         args.putSerializable(ARG_USER_UUID, userId);
@@ -65,8 +65,8 @@ public class TaskListFragment extends Fragment {
 
     private void initList() {
         mStateList = (List<State>) getArguments().getSerializable(ARG_STATES);
-        mUserId = (UUID) getArguments().getSerializable(ARG_USER_UUID);
-        mTaskRepository = TaskRepository.getInstance();
+        mUserId = getArguments().getLong(ARG_USER_UUID);
+        mTaskRepository = TaskDBRepository.getInstance(getActivity());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mTaskRepository = TaskRepository.getInstance();
+        mTaskRepository = TaskDBRepository.getInstance(getActivity());
         Log.d(TAG, "on resume");
         Log.d(TAG, "size list select:" + mTaskRepository.getListByStates(mStateList).size());
         updateUI();
@@ -92,14 +92,14 @@ public class TaskListFragment extends Fragment {
 
     private int getStateListPosition(UUID uuid) {
         for (int i = 0; i < mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).size(); i++) {
-            if (uuid.equals(mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).get(i).getID())) {
+            if (uuid.equals(mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).get(i).getUUID())) {
                 return i;
             }
         }
         return -1;
     }
 
-    private void updateUI() {
+    public void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
         List<Task> tasks = mTaskRepository.getTasksByUserPerStates(mUserId, mStateList);
 
@@ -143,7 +143,7 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getID(), mUserId);
+                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getUUID(), mUserId);
                     setTargetFragment(taskDetailFragment, TASK_DETAIL_REQUEST_CODE);
                     taskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
                 }
@@ -160,7 +160,7 @@ public class TaskListFragment extends Fragment {
                 calendar.setTime(task.getDate());
                 mTextViewDate.setText(DateUtils.formatDateTime(getActivity(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
 //                mTextViewDate.setText(calendar.get(Calendar.MONTH));
-                if (getStateListPosition(task.getID()) % 2 == 1)
+                if (getStateListPosition(task.getUUID()) % 2 == 1)
                     mLinearLayoutMain.setBackgroundColor(Color.GRAY);
                 else
                     mLinearLayoutMain.setBackgroundColor((Color.WHITE));

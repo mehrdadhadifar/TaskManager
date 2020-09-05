@@ -1,21 +1,43 @@
 package com.hfad.taskmanager.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import com.hfad.taskmanager.utils.Utils;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Entity(tableName = "TaskTable")
 public class Task {
-    private UUID mID;
-    private State mState;
-    private String mTitle;
-    private String mComment;
-    private Date mDate;
-    private UUID mUserId;
 
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+    @ColumnInfo(name = "uuid")
+    private UUID mUUID;
+    @ColumnInfo(name = "state")
+    private State mState;
+    @ColumnInfo(name = "title")
+    private String mTitle;
+    @ColumnInfo(name = "comment")
+    private String mComment;
+    @ColumnInfo(name = "date")
+    private Date mDate;
+    @ColumnInfo(name = "userId")
+    private long mUserId;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     private Task() {
-        mID = UUID.randomUUID();
+        mUUID = UUID.randomUUID();
     }
 
     public Task(String title) {
@@ -23,17 +45,19 @@ public class Task {
         mTitle = title;
         mState = Utils.randomEnum(State.class);
         mDate = Utils.getRandomDate();
-        mComment="";
+        mComment = "";
     }
 
+    @Ignore
     public Task(String title, State state) {
         this();
         mTitle = title;
         mState = state;
         mDate = Utils.getRandomDate();
-        mComment="";
+        mComment = "";
     }
 
+    @Ignore
     public Task(String title, State state, String comment) {
         this();
         mState = state;
@@ -42,6 +66,7 @@ public class Task {
         mDate = Utils.getRandomDate();
     }
 
+    @Ignore
     public Task(String title, State state, String comment, Date date) {
         this();
         mState = state;
@@ -50,16 +75,21 @@ public class Task {
         mDate = date;
     }
 
+    @Ignore
     public Task(String title, State state, Date date) {
         this();
         mState = state;
         mTitle = title;
         mDate = date;
-        mComment="";
+        mComment = "";
     }
 
-    public UUID getID() {
-        return mID;
+    public UUID getUUID() {
+        return mUUID;
+    }
+
+    public void setUUID(UUID uuid) {
+        mUUID = uuid;
     }
 
     public State getState() {
@@ -94,24 +124,21 @@ public class Task {
         mDate = date;
     }
 
-    public void setID(UUID ID) {
-        mID = ID;
-    }
-
-    public UUID getUserId() {
+    public long getUserId() {
         return mUserId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(long userId) {
         mUserId = userId;
     }
 
     @Override
     public String toString() {
         return "Task{" +
-                "mID=" + mID +
+                "mID=" + mUUID +
                 ", mState=" + mState +
                 ", mTitle='" + mTitle + '\'' +
                 '}';
     }
+
 }

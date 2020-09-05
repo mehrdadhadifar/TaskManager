@@ -1,6 +1,5 @@
 package com.hfad.taskmanager.controller.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +11,9 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.IRepository;
-import com.hfad.taskmanager.repository.TaskRepository;
+import com.hfad.taskmanager.repository.TaskDBRepository;
 
 
 public class BuildListFragment extends Fragment {
@@ -63,7 +61,7 @@ public class BuildListFragment extends Fragment {
                 else {
                     mUsername = mEditTextName.getText().toString();
                     mNumberOfTasks = Integer.valueOf(mEditTextNumber.getText().toString());
-                    mTaskIRepository = TaskRepository.getInstance();
+                    mTaskIRepository = TaskDBRepository.getInstance(getActivity());
                     for (int i = 0; i < mNumberOfTasks; i++) {
                         Task task = new Task(mUsername);
                         mTaskIRepository.insert(task);

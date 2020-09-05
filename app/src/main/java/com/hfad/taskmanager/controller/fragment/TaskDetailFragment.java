@@ -3,6 +3,7 @@ package com.hfad.taskmanager.controller.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,8 +25,8 @@ import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
-import com.hfad.taskmanager.repository.TaskRepository;
-import com.hfad.taskmanager.repository.UserRepository;
+import com.hfad.taskmanager.repository.TaskDBRepository;
+import com.hfad.taskmanager.repository.UserDBRepository;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -46,11 +47,12 @@ public class TaskDetailFragment extends DialogFragment {
     private RadioGroup mRadioGroupState;
     private Task mUpdateTask;
     private Task mTask;
-    private TaskRepository mTaskRepository;
+    private TaskDBRepository mTaskRepository;
     private Calendar mCalendar;
     private boolean mUnEditable;
-    private UUID mUserId;
-    private UserRepository mUserRepository;
+    private long mUserId;
+    private UserDBRepository mUserDBRepository;
+    private Callbacks mCallbacks;
 
 
     public TaskDetailFragment() {
@@ -58,7 +60,7 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
 
-    public static TaskDetailFragment newInstance(UUID taskId, UUID userId) {
+    public static TaskDetailFragment newInstance(UUID taskId, long userId) {
         TaskDetailFragment fragment = new TaskDetailFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_TASK_ID, taskId);
@@ -68,10 +70,20 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof Callbacks)
+            mCallbacks= (Callbacks) context;
+        else
+            throw new ClassCastException(context.toString()
+                    + " must implement onCrimeUpdated");
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTaskRepository = TaskRepository.getInstance();
-        mUserRepository = UserRepository.getInstance();
+        mTaskRepository = TaskDBRepository.getInstance(getActivity());
+        mUserDBRepository = UserDBRepository.getInstance(getActivity());
         mCalendar = Calendar.getInstance();
         if (getArguments().getSerializable(ARG_TASK_ID) == null) {
             mUpdateTask = new Task("", State.Todo);
@@ -80,7 +92,7 @@ public class TaskDetailFragment extends DialogFragment {
             mUpdateTask = new Task(mTask.getTitle(), mTask.getState(), mTask.getComment(), mTask.getDate());
             mUnEditable = true;
         }
-        mUserId = (UUID) getArguments().getSerializable(ARG_USER_ID);
+        mUserId = getArguments().getLong(ARG_USER_ID);
     }
 
     @NonNull
@@ -100,8 +112,10 @@ public class TaskDetailFragment extends DialogFragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if (mEditTextTile.getText().length() > 0) {
-                                mTaskRepository.insert(buildTask());
-                                ((TaskPagerActivity) getActivity()).setUI();
+                                Task task = buildTask();
+                                mTaskRepository.insert(task);
+                                mCallbacks.onTaskUpdate();
+//                                ((TaskPagerActivity) getActivity()).updateUI();
                             } else
                                 Toast.makeText(getActivity(), "Task title must not be empty!", Toast.LENGTH_LONG).show();
                         }
@@ -116,9 +130,10 @@ public class TaskDetailFragment extends DialogFragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if (mEditTextTile.getText().length() > 0) {
-                                mUpdateTask.setID(mTask.getID());
+                                mUpdateTask.setId(mTask.getId());
                                 mTaskRepository.update(buildTask());
-                                ((TaskPagerActivity) getActivity()).setUI();
+                                mCallbacks.onTaskUpdate();
+//                                ((TaskPagerActivity) getActivity()).setUI();
                             } else
                                 Toast.makeText(getActivity(), "Task title must not be empty!", Toast.LENGTH_LONG).show();
                         }
@@ -128,7 +143,8 @@ public class TaskDetailFragment extends DialogFragment {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             deleteTask();
                             Toast.makeText(getActivity(), "Your task has been deleted!!", Toast.LENGTH_LONG).show();
-                            ((TaskPagerActivity) getActivity()).setUI();
+                            mCallbacks.onTaskUpdate();
+//                            ((TaskPagerActivity) getActivity()).setUI();
                         }
                     })
                     .setNeutralButton("Edit", null)
@@ -157,7 +173,7 @@ public class TaskDetailFragment extends DialogFragment {
     }
 
     private void deleteTask() {
-        mUpdateTask.setID(mTask.getID());
+        mUpdateTask.setId(mTask.getId());
         mTaskRepository.delete(mUpdateTask);
     }
 
@@ -270,7 +286,7 @@ public class TaskDetailFragment extends DialogFragment {
                 mUpdateTask.setState(State.Done);
                 break;
         }
-        if (mUserRepository.get(mUserId).getRole() == 0)
+        if (mUserDBRepository.get(mUserId).getRole() == 0)
             mUpdateTask.setUserId(mUserId);
         else
             mUpdateTask.setUserId(mTask.getUserId());
@@ -297,6 +313,10 @@ public class TaskDetailFragment extends DialogFragment {
             mUpdateTask.setDate(mCalendar.getTime());
             updateUI();
         }
+    }
+
+    public interface Callbacks {
+        void onTaskUpdate();
     }
 
     private void findAllViews(View view) {

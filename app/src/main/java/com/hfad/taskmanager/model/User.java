@@ -1,38 +1,33 @@
 package com.hfad.taskmanager.model;
 
-import com.hfad.taskmanager.repository.TaskRepository;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
+@Entity(tableName = "UserTable")
 public class User {
-    private UUID mUUID;
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+    @ColumnInfo(name = "username")
     private String mUsername;
+    @ColumnInfo(name = "password")
     private String mPassword;
+    @ColumnInfo(name = "role")
     private int mRole;
-    private List<Task> mUserTaskList;
+    //    private List<Task> mUserTaskList;
+    @ColumnInfo(name = "registerDate")
     private Date mRegisterDate;
 
-    private User() {
-        mUUID = UUID.randomUUID();
-        mRegisterDate = new Date();
-    }
 
     public User(String username, String password, int role) {
-        this();
+        mRegisterDate=new Date();
         mUsername = username;
         mPassword = password;
         mRole = role;
     }
 
-    public UUID getUUID() {
-        return mUUID;
-    }
-
-    public void setUUID(UUID UUID) {
-        mUUID = UUID;
-    }
 
     public String getUsername() {
         return mUsername;
@@ -58,11 +53,19 @@ public class User {
         mRole = role;
     }
 
-    public List<Task> getUserTaskList() {
-        return mUserTaskList;
+    public long getId() {
+        return id;
     }
 
-    public void setUserTaskList(List<Task> userTaskList) {
-        mUserTaskList = userTaskList;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public Date getRegisterDate() {
+        return mRegisterDate;
+    }
+
+    public void setRegisterDate(Date registerDate) {
+        mRegisterDate = registerDate;
     }
 }

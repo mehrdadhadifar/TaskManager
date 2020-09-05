@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,14 +26,14 @@ import com.hfad.taskmanager.controller.fragment.TaskDetailFragment;
 import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
-import com.hfad.taskmanager.repository.TaskRepository;
-import com.hfad.taskmanager.repository.UserRepository;
+import com.hfad.taskmanager.repository.TaskDBRepository;
+import com.hfad.taskmanager.repository.UserDBRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskPagerActivity extends AppCompatActivity {
+public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFragment.Callbacks {
 
     public static final String TAG = "TPA";
     public static final String NEW_TASK_FRAGMENT = "NEW_TASK_FRAGMENT";
@@ -42,16 +41,16 @@ public class TaskPagerActivity extends AppCompatActivity {
     private ViewPager2 mTaskViewPager;
     private TabLayout mTaskTabLayout;
     private FloatingActionButton mFloatingActionButtonNewTask;
-    private TaskRepository mTaskRepository;
-    private UUID mUserId;
-    private UserRepository mUserRepository;
+    private TaskDBRepository mTaskRepository;
+    private long mUserId;
+    private UserDBRepository mUserDBRepository;
 
     FragmentStateAdapter adapter;
 
 
-    public static Intent newIntent(Context context, UUID uuid) {
+    public static Intent newIntent(Context context, long id) {
         Intent intent = new Intent(context, TaskPagerActivity.class);
-        intent.putExtra(EXTRA_USER_UUID, uuid);
+        intent.putExtra(EXTRA_USER_UUID, id);
         return intent;
     }
 
@@ -59,12 +58,26 @@ public class TaskPagerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
-        mTaskRepository = TaskRepository.getInstance();
-        mUserRepository = UserRepository.getInstance();
-        mUserId = (UUID) getIntent().getSerializableExtra(EXTRA_USER_UUID);
+        mTaskRepository = TaskDBRepository.getInstance(this);
+        mUserDBRepository = UserDBRepository.getInstance(this);
+        mUserId = getIntent().getLongExtra(EXTRA_USER_UUID,0);
         findAllViews();
         setUI();
         setonClickListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
+    public void updateUI() {
+        for (int i = 0; i < getSupportFragmentManager().getFragments().size(); i++) {
+            if (getSupportFragmentManager().getFragments().get(i) instanceof TaskListFragment) {
+                ((TaskListFragment) (getSupportFragmentManager().getFragments().get(i))).updateUI();
+            }
+        }
     }
 
     private void setonClickListeners() {
@@ -75,13 +88,6 @@ public class TaskPagerActivity extends AppCompatActivity {
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
                 TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null, mUserId);
                 newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
-/*                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
-                adapter.notifyDataSetChanged();
-                adapter.notifyItemRangeChanged(0,3);
-//                int position = mTaskViewPager.getCurrentItem();
-//                setUI();
-//                mTaskViewPager.setCurrentItem(position);*/
-
             }
         });
 
@@ -111,8 +117,8 @@ public class TaskPagerActivity extends AppCompatActivity {
 
 
     public void setUI() {
-        getSupportActionBar().setSubtitle(mUserRepository.get(mUserId).getUsername()+" Tasks");
-        if (mUserRepository.get(mUserId).getRole() == 1)
+        getSupportActionBar().setSubtitle(mUserDBRepository.get(mUserId).getUsername() + " Tasks");
+        if (mUserDBRepository.get(mUserId).getRole() == 1)
             mFloatingActionButtonNewTask.setEnabled(false);
 //        if (adapterr == null) {
         adapter = new TaskViewPagerAdapter(this);
@@ -139,6 +145,11 @@ public class TaskPagerActivity extends AppCompatActivity {
                 adapter.notifyAll();
             }
         }*/
+    }
+
+    @Override
+    public void onTaskUpdate() {
+        updateUI();
     }
 
     private class TaskViewPagerAdapter extends FragmentStateAdapter {

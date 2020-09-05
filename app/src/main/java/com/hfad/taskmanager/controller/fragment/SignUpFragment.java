@@ -16,10 +16,10 @@ import android.widget.Toast;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.LoginActivity;
 import com.hfad.taskmanager.model.User;
-import com.hfad.taskmanager.repository.UserRepository;
+import com.hfad.taskmanager.repository.UserDBRepository;
 
 public class SignUpFragment extends Fragment {
-    private UserRepository mUserRepository;
+    private UserDBRepository mUserDBRepository;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
     private Button mButtonSignUp;
@@ -41,7 +41,7 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUserRepository = UserRepository.getInstance();
+        mUserDBRepository = UserDBRepository.getInstance(getActivity());
     }
 
     @Override
@@ -66,7 +66,7 @@ public class SignUpFragment extends Fragment {
                     else
                         user = new User(mEditTextUsername.getText().toString(), mEditTextPassword.getText().toString(), 0);
                     Toast.makeText(getActivity(), "User added", Toast.LENGTH_LONG).show();
-                    mUserRepository.insert(user);
+                    mUserDBRepository.insert(user);
                     getActivity().finish();
 /*                    Intent intent = LoginActivity.newIntent(getActivity());
                     startActivity(intent);*/

@@ -37,7 +37,7 @@ public class TaskListActivity extends SingleFragmentActivity {
     public Fragment createFragment() {
         TaskListFragment taskListFragment = TaskListFragment.newInstance(
                 (List<State>) getIntent().getSerializableExtra(EXTRA_STATE_LIST)
-                , (UUID) getIntent().getSerializableExtra(EXTRA_USERNAME)
+                ,  getIntent().getLongExtra(EXTRA_USERNAME,0)
         );
         return taskListFragment;
     }

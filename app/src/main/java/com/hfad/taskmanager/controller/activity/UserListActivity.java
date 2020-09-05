@@ -13,7 +13,7 @@ public class UserListActivity extends SingleFragmentActivity {
 
     public static final String EXTRA_USER_ID = "EXTRA_USER_ID";
 
-    public static Intent newIntent(Context context, UUID userId) {
+    public static Intent newIntent(Context context, long userId) {
         Intent intent = new Intent(context, UserListActivity.class);
         intent.putExtra(EXTRA_USER_ID, userId);
         return intent;
@@ -21,6 +21,6 @@ public class UserListActivity extends SingleFragmentActivity {
 
     @Override
     public Fragment createFragment() {
-        return UserListFragment.newInstance((UUID) getIntent().getSerializableExtra(EXTRA_USER_ID));
+        return UserListFragment.newInstance( getIntent().getLongExtra(EXTRA_USER_ID,0));
     }
 }

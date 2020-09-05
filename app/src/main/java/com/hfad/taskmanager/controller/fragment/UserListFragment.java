@@ -17,26 +17,26 @@ import android.widget.TextView;
 import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.User;
-import com.hfad.taskmanager.repository.UserRepository;
+import com.hfad.taskmanager.repository.UserDBRepository;
 
 import java.util.List;
 import java.util.UUID;
 
 public class UserListFragment extends Fragment {
     public static final String ARG_USER_UUID = "ARG_USER_UUID";
-    private UserRepository mUserRepository;
+    private UserDBRepository mUserDBRepository;
     private TextView[] mTextViewsUsers;
     private LinearLayout mLinearLayoutMain;
     private Button mButtonDelete;
     private LinearLayout mLinearLayoutRow[];
-    private UUID mUserId;
+    private long mUserId;
 
 
     public UserListFragment() {
         // Required empty public constructor
     }
 
-    public static UserListFragment newInstance(UUID userId) {
+    public static UserListFragment newInstance(long userId) {
         UserListFragment fragment = new UserListFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_USER_UUID, userId);
@@ -47,8 +47,8 @@ public class UserListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUserRepository = UserRepository.getInstance();
-        mUserId = (UUID) getArguments().getSerializable(ARG_USER_UUID);
+        mUserDBRepository = UserDBRepository.getInstance(getActivity());
+        mUserId = getArguments().getLong(ARG_USER_UUID);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -58,12 +58,12 @@ public class UserListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
         mLinearLayoutMain = view.findViewById(R.id.main_scroll_view);
-        final List<User> users = mUserRepository.getList();
+        final List<User> users = mUserDBRepository.getList();
         mTextViewsUsers = new TextView[users.size()];
         mLinearLayoutRow = new LinearLayout[users.size()];
         int i;
         for (i = 0; i < users.size(); i++) {
-            if (users.get(i).getUUID().equals(mUserId))
+            if (users.get(i).getId() == mUserId)
                 continue;
             mLinearLayoutRow[i] = new LinearLayout(getActivity());
             mLinearLayoutRow[i].setOrientation(LinearLayout.HORIZONTAL);
@@ -85,7 +85,7 @@ public class UserListFragment extends Fragment {
             mButtonDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mUserRepository.delete(users.get(finalI));
+                    mUserDBRepository.delete(users.get(finalI));
                     mLinearLayoutRow[finalI1].setVisibility(View.GONE);
                 }
             });
@@ -93,7 +93,7 @@ public class UserListFragment extends Fragment {
             mTextViewsUsers[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = TaskPagerActivity.newIntent(getActivity(), users.get(finalI2).getUUID());
+                    Intent intent = TaskPagerActivity.newIntent(getActivity(), users.get(finalI2).getId());
                     startActivity(intent);
                 }
             });
