@@ -7,11 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -21,8 +16,11 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskDBRepository;

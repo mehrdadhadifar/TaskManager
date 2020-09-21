@@ -1,19 +1,29 @@
 package com.hfad.taskmanager.controller.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +35,7 @@ import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskDBRepository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +53,10 @@ public class TaskListFragment extends Fragment {
     private TaskAdapter mTaskAdapter;
     private List<State> mStateList;
     private long mUserId;
+    private SearchView mSearchView;
+    private Toolbar mToolbar;
 
+    //
     public TaskListFragment() {
         // Required empty public constructor
     }
@@ -60,6 +74,7 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         initList();
     }
 
@@ -76,8 +91,41 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         findAllViews(view);
         updateUI();
-//        setClickListener();
+        setClickListener();
+//        addMenu();
         return view;
+    }
+
+    private void addMenu() {
+        mToolbar.inflateMenu(R.menu.task_list_menu);
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.menu_item_delete_all:
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Are sure to delete all tasks?")
+                                .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        List<Task> list = mTaskRepository.getUserTasks(mUserId);
+                                        for (int j = 0; j < list.size(); j++) {
+                                            mTaskRepository.delete(list.get(j));
+                                        }
+                                        updateUI();
+                                    }
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .create().show();
+                        return false;
+                    case R.id.menu_item_sign_out:
+                        getActivity().finish();
+                        return false;
+                    default:
+                        return false;
+                }
+            }
+        });
     }
 
     @Override
@@ -89,6 +137,34 @@ public class TaskListFragment extends Fragment {
         updateUI();
     }
 
+    private void findAllViews(View view) {
+        mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
+        mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
+        mToolbar = view.findViewById(R.id.toolbar_task_list);
+        mSearchView = view.findViewById(R.id.search_view);
+    }
+
+    private void setClickListener() {
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSearchView.setIconified(false);
+            }
+        });
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                mTaskAdapter.getFilter().filter(query);
+                Log.d(TAG, "search change");
+                return false;
+            }
+        });
+    }
 
     private int getStateListPosition(UUID uuid) {
         for (int i = 0; i < mTaskRepository.getTasksByUserPerStates(mUserId, mStateList).size(); i++) {
@@ -98,6 +174,7 @@ public class TaskListFragment extends Fragment {
         }
         return -1;
     }
+
 
     public void updateUI() {
         mRecyclerViewTasks.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -169,8 +246,9 @@ public class TaskListFragment extends Fragment {
         }
     }
 
-    private class TaskAdapter extends RecyclerView.Adapter<TaskHolder> {
+    private class TaskAdapter extends RecyclerView.Adapter<TaskHolder> implements Filterable {
         List<Task> mTasks;
+        List<Task> mTaskListFull;
 
         public List<Task> getTasks() {
             return mTasks;
@@ -178,10 +256,12 @@ public class TaskListFragment extends Fragment {
 
         public void setTasks(List<Task> tasks) {
             mTasks = tasks;
+            mTaskListFull = new ArrayList<>(mTasks);
         }
 
         public TaskAdapter(List<Task> tasks) {
             mTasks = tasks;
+            mTaskListFull = new ArrayList<>(mTasks);
         }
 
         @Override
@@ -192,7 +272,7 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-            if (mTasks.size() == 0)
+            if (mTaskListFull.size() == 0)
                 return 0;
             else
                 return 1;
@@ -215,12 +295,74 @@ public class TaskListFragment extends Fragment {
             Task task = mTasks.get(position);
             holder.bindTask(task);
         }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence charSequence) {
+                    String charString = charSequence.toString();
+                    List<Task> filteredTasks = new ArrayList<>();
+                    if (charString.isEmpty()) {
+                        filteredTasks.addAll(mTaskListFull);
+                    } else {
+                        for (Task task : mTaskListFull
+                        ) {
+                            if (task.getTitle().toLowerCase().contains(charString.toLowerCase()) ||
+                                    task.getComment().toLowerCase().contains(charString.toLowerCase()) ||
+                                    task.getDate().toString().contains(charString.toLowerCase())) {
+                                filteredTasks.add(task);
+                            }
+                        }
+                    }
+                    FilterResults filterResults = new FilterResults();
+                    filterResults.values = filteredTasks;
+                    return filterResults;
+                }
+
+                @Override
+                protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                    mTasks.clear();
+                    mTasks.addAll((List) filterResults.values);
+                    notifyDataSetChanged();
+                }
+            };
+        }
     }
 
-    private void findAllViews(View view) {
-        mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);
-        mLinearLayoutEmpty = view.findViewById(R.id.empty_linear_layout);
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.task_list_menu, menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_all:
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Are sure to delete all tasks?")
+                        .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
+                                for (int j = 0; j < list.size(); j++) {
+                                    mTaskRepository.delete(list.get(j));
+                                }
+                                updateUI();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create().show();
+                return true;
+            case R.id.menu_item_sign_out:
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -31,7 +31,6 @@ import com.hfad.taskmanager.repository.UserDBRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFragment.Callbacks {
 
@@ -45,7 +44,7 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
     private long mUserId;
     private UserDBRepository mUserDBRepository;
 
-    FragmentStateAdapter adapter;
+    FragmentStateAdapter mAdapter;
 
 
     public static Intent newIntent(Context context, long id) {
@@ -60,7 +59,7 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
         setContentView(R.layout.activity_task_pager);
         mTaskRepository = TaskDBRepository.getInstance(this);
         mUserDBRepository = UserDBRepository.getInstance(this);
-        mUserId = getIntent().getLongExtra(EXTRA_USER_UUID,0);
+        mUserId = getIntent().getLongExtra(EXTRA_USER_UUID, 0);
         findAllViews();
         setUI();
         setonClickListeners();
@@ -90,29 +89,6 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
                 newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
             }
         });
-
-/*        mTaskViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                Log.d(TAG +" position:",String.valueOf(position));
-//                adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
-                adapter.notifyItemRangeChanged(0,3);
-//                adapter.notifyDataSetChanged();
-//                adapter.createFragment(mTaskViewPager.getCurrentItem());
-//                adapter.notifyItemChanged(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-            }
-        });*/
     }
 
 
@@ -121,8 +97,8 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
         if (mUserDBRepository.get(mUserId).getRole() == 1)
             mFloatingActionButtonNewTask.setEnabled(false);
 //        if (adapterr == null) {
-        adapter = new TaskViewPagerAdapter(this);
-        mTaskViewPager.setAdapter(adapter);
+        mAdapter = new TaskViewPagerAdapter(this);
+        mTaskViewPager.setAdapter(mAdapter);
         new TabLayoutMediator(mTaskTabLayout, mTaskViewPager,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
@@ -136,15 +112,6 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
                     }
                 }
         ).attach();
-/*        } else {
-//            adapter.notifyItemChanged(mTaskViewPager.getCurrentItem());
-            adapter.createFragment(mTaskViewPager.getCurrentItem());
-            adapter.notifyDataSetChanged();
-            adapter.notifyItemRangeChanged(0, 3);
-            synchronized (adapter) {
-                adapter.notifyAll();
-            }
-        }*/
     }
 
     @Override
@@ -186,39 +153,8 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
         return stateList;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_user, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_delete_all:
-                new AlertDialog.Builder(TaskPagerActivity.this)
-                        .setTitle("Are sure to delete all tasks?")
-                        .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
-                                for (int j = 0; j < list.size(); j++) {
-                                    mTaskRepository.delete(list.get(j));
-                                }
-                                setUI();
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .create().show();
-                return true;
-            case R.id.menu_item_sign_out:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+
 
 
     private void findAllViews() {

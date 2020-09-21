@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.room.Room;
 
-import com.hfad.taskmanager.database.UserDataBase;
+import com.hfad.taskmanager.database.TaskDataBase;
 import com.hfad.taskmanager.model.User;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class UserDBRepository implements IRepository<User> {
     private static UserDBRepository mUserDBRepository;
-    private UserDataBase mUserDataBase;
+    private TaskDataBase mUserDataBase;
     private static Context mContext;
 
     public static UserDBRepository getInstance(Context context) {
@@ -24,8 +24,8 @@ public class UserDBRepository implements IRepository<User> {
 
     private UserDBRepository() {
         mUserDataBase = Room.databaseBuilder(mContext
-                , UserDataBase.class
-                , "UserDB")
+                , TaskDataBase.class
+                , "TaskDB")
                 .allowMainThreadQueries()
                 .build();
     }
