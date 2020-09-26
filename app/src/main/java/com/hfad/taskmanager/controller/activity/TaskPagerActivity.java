@@ -1,14 +1,9 @@
 package com.hfad.taskmanager.controller.activity;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -22,17 +17,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.fragment.TaskDetailFragment;
+import com.hfad.taskmanager.controller.fragment.DialogTaskDetailFragment;
 import com.hfad.taskmanager.controller.fragment.TaskListFragment;
 import com.hfad.taskmanager.model.State;
-import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskDBRepository;
 import com.hfad.taskmanager.repository.UserDBRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFragment.Callbacks {
+public class TaskPagerActivity extends AppCompatActivity implements DialogTaskDetailFragment.Callbacks {
 
     public static final String TAG = "TPA";
     public static final String NEW_TASK_FRAGMENT = "NEW_TASK_FRAGMENT";
@@ -85,8 +79,8 @@ public class TaskPagerActivity extends AppCompatActivity implements TaskDetailFr
             public void onClick(View view) {
                 Log.d(TAG, "button activity");
                 Log.d(TAG, "repository size:" + mTaskRepository.getList().size());
-                TaskDetailFragment newTaskDetailFragment = TaskDetailFragment.newInstance(null, mUserId);
-                newTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
+                DialogTaskDetailFragment newDialogTaskDetailFragment = DialogTaskDetailFragment.newInstance(null, mUserId);
+                newDialogTaskDetailFragment.show(getSupportFragmentManager(), NEW_TASK_FRAGMENT);
             }
         });
     }

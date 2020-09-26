@@ -26,7 +26,7 @@ public class TaskListActivity extends SingleFragmentActivity {
      * @param stateList list of States which have to e shown;
      * @return
      */
-    public static Intent newIntent(Context context, List<State> stateList, UUID userId) {
+    public static Intent newIntent(Context context, List<State> stateList, long userId) {
         Intent intent = new Intent(context, TaskListActivity.class);
         intent.putExtra(EXTRA_STATE_LIST, (Serializable) stateList);
         intent.putExtra(EXTRA_USER_UUID, userId);
@@ -37,7 +37,7 @@ public class TaskListActivity extends SingleFragmentActivity {
     public Fragment createFragment() {
         TaskListFragment taskListFragment = TaskListFragment.newInstance(
                 (List<State>) getIntent().getSerializableExtra(EXTRA_STATE_LIST)
-                ,  getIntent().getLongExtra(EXTRA_USERNAME,0)
+                , getIntent().getLongExtra(EXTRA_USERNAME, 0)
         );
         return taskListFragment;
     }

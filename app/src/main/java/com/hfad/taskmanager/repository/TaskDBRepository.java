@@ -8,6 +8,7 @@ import com.hfad.taskmanager.database.TaskDataBase;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -88,6 +89,12 @@ public class TaskDBRepository implements IRepository<Task> {
                 return i;
         }
         return -1;
+    }
+
+    @Override
+    public File getPhotoFile(Context context, Task task) {
+        File photoFile = new File(context.getFilesDir(), task.getPhotoFileName());
+        return photoFile;
     }
 
     //Get tasks for one user

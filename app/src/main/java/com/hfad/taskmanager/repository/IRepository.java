@@ -1,5 +1,8 @@
 package com.hfad.taskmanager.repository;
 
+import android.content.Context;
+
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,4 +23,5 @@ public interface IRepository<E> {
 
     int getPosition(UUID uuid);
 
-    }
+    File getPhotoFile(Context context, E e);
+}

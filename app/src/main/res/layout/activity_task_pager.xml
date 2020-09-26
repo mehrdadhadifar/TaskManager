@@ -19,14 +19,13 @@
         android:layout_weight="7" />
 
 
-
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floating_Action_Button_add_pager"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:clickable="true"
-            android:src="@android:drawable/ic_input_add" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_Action_Button_add_pager"
+        style="@style/FloatingActionButton.custom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:clickable="true"
+        android:src="@drawable/ic_floating_add" />
 
 </LinearLayout>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +25,12 @@ import java.util.UUID;
 
 public class UserListFragment extends Fragment {
     public static final String ARG_USER_UUID = "ARG_USER_UUID";
+    private RecyclerView mRecyclerViewUsers;
     private UserDBRepository mUserDBRepository;
-    private TextView[] mTextViewsUsers;
-    private LinearLayout mLinearLayoutMain;
-    private Button mButtonDelete;
-    private LinearLayout mLinearLayoutRow[];
+    /*    private TextView[] mTextViewsUsers;
+        private LinearLayout mLinearLayoutMain;
+        private Button mButtonDelete;
+        private LinearLayout mLinearLayoutRow[];*/
     private long mUserId;
 
 
@@ -57,7 +59,7 @@ public class UserListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
-        mLinearLayoutMain = view.findViewById(R.id.main_scroll_view);
+       /* mLinearLayoutMain = view.findViewById(R.id.main_scroll_view);
         final List<User> users = mUserDBRepository.getList();
         mTextViewsUsers = new TextView[users.size()];
         mLinearLayoutRow = new LinearLayout[users.size()];
@@ -99,7 +101,13 @@ public class UserListFragment extends Fragment {
             });
         }
 
+*/
+        findAllViews(view);
 
         return view;
+    }
+
+    private void findAllViews(View view) {
+        mRecyclerViewUsers = view.findViewById(R.id.user_list_recycler_view);
     }
 }

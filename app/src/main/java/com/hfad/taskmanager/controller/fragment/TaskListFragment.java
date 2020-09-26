@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -16,13 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +34,8 @@ import com.hfad.taskmanager.R;
 import com.hfad.taskmanager.model.State;
 import com.hfad.taskmanager.model.Task;
 import com.hfad.taskmanager.repository.TaskDBRepository;
+import com.hfad.taskmanager.utils.PictureUtils;
+import com.ortiz.touchview.TouchImageView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,41 +95,42 @@ public class TaskListFragment extends Fragment {
         findAllViews(view);
         updateUI();
         setClickListener();
-//        addMenu();
         return view;
     }
 
-    private void addMenu() {
-        mToolbar.inflateMenu(R.menu.task_list_menu);
-        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_item_delete_all:
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Are sure to delete all tasks?")
-                                .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        List<Task> list = mTaskRepository.getUserTasks(mUserId);
-                                        for (int j = 0; j < list.size(); j++) {
-                                            mTaskRepository.delete(list.get(j));
-                                        }
-                                        updateUI();
-                                    }
-                                })
-                                .setNegativeButton("Cancel", null)
-                                .create().show();
-                        return false;
-                    case R.id.menu_item_sign_out:
-                        getActivity().finish();
-                        return false;
-                    default:
-                        return false;
-                }
-            }
-        });
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.task_list_menu, menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_all:
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Are sure to delete all tasks?")
+                        .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
+                                for (int j = 0; j < list.size(); j++) {
+                                    mTaskRepository.delete(list.get(j));
+                                }
+                                updateUI();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create().show();
+                return true;
+            case R.id.menu_item_sign_out:
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onResume() {
@@ -207,6 +211,7 @@ public class TaskListFragment extends Fragment {
         private TextView mTextViewDate;
         private Task mTask;
         private RoundedLetterView mRoundedLetterView;
+        private ImageView mImageViewShowImage;
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
@@ -216,13 +221,14 @@ public class TaskListFragment extends Fragment {
             mTextViewComment = itemView.findViewById(R.id.recycle_view_tasks_text_view_comment);
             mTextViewDate = itemView.findViewById(R.id.recycle_view_tasks_text_view_date);
             mRoundedLetterView = itemView.findViewById(R.id.rlv_name_view);
+            mImageViewShowImage = itemView.findViewById(R.id.imageView_row_task_detail);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TaskDetailFragment taskDetailFragment = TaskDetailFragment.newInstance(mTask.getUUID(), mUserId);
-                    setTargetFragment(taskDetailFragment, TASK_DETAIL_REQUEST_CODE);
-                    taskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
+                    DialogTaskDetailFragment dialogTaskDetailFragment = DialogTaskDetailFragment.newInstance(mTask.getUUID(), mUserId);
+                    setTargetFragment(dialogTaskDetailFragment, TASK_DETAIL_REQUEST_CODE);
+                    dialogTaskDetailFragment.show(getFragmentManager(), TASK_DETAIL_FRAGMENT_TAG);
                 }
             });
         }
@@ -238,10 +244,19 @@ public class TaskListFragment extends Fragment {
                 mTextViewDate.setText(DateUtils.formatDateTime(getActivity(), calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
 //                mTextViewDate.setText(calendar.get(Calendar.MONTH));
                 if (getStateListPosition(task.getUUID()) % 2 == 1)
-                    mLinearLayoutMain.setBackgroundColor(Color.GRAY);
+                    mLinearLayoutMain.setBackgroundColor(getResources().getColor(R.color.lightPurple));
                 else
-                    mLinearLayoutMain.setBackgroundColor((Color.WHITE));
-                mRoundedLetterView.setTitleText(String.valueOf(task.getTitle().charAt(0)));
+                    mLinearLayoutMain.setBackgroundColor(getResources().getColor(R.color.white));
+                if (mTaskRepository.getPhotoFile(getActivity(), task) != null && mTaskRepository.getPhotoFile(getActivity(), task).exists()) {
+                    mRoundedLetterView.setVisibility(View.GONE);
+                    Bitmap bitmap = PictureUtils.getScaledBitmap(mTaskRepository.getPhotoFile(getActivity(), task).getPath(), getActivity());
+                    mImageViewShowImage.setImageBitmap(bitmap);
+                    mImageViewShowImage.setVisibility(View.VISIBLE);
+                } else {
+                    mRoundedLetterView.setTitleText(String.valueOf(task.getTitle().charAt(0)));
+                    mRoundedLetterView.setVisibility(View.VISIBLE);
+                    mImageViewShowImage.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -327,39 +342,6 @@ public class TaskListFragment extends Fragment {
                     notifyDataSetChanged();
                 }
             };
-        }
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.task_list_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_delete_all:
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Are sure to delete all tasks?")
-                        .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                List<Task> list = mTaskRepository.getUserTasks(mUserId);
-                                for (int j = 0; j < list.size(); j++) {
-                                    mTaskRepository.delete(list.get(j));
-                                }
-                                updateUI();
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .create().show();
-                return true;
-            case R.id.menu_item_sign_out:
-                getActivity().finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 

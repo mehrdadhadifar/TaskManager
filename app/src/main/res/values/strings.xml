@@ -14,4 +14,7 @@
     <string name="title">Title:</string>
     <string name="date">Date:</string>
     <string name="comments">Comments:</string>
+    <string name="task_report_subject">My Task Manager App:</string>
+    <string name="task_report">The %1$s is a %4$s task which is %2$s at date: %3$s </string>
+    <string name="login">Login</string>
 </resources>

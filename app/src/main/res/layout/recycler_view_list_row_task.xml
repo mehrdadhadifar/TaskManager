@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recycle_view_tasks_main_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,17 +11,36 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <com.github.pavlospt.roundedletterview.RoundedLetterView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/rlv_name_view"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="15dp"
             android:layout_weight="1"
-            app:rlv_backgroundColorValue="@color/green"
-            app:rlv_titleColor="@android:color/white"
-            app:rlv_titleSize="35dp"
-            android:layout_gravity="center"
-            app:rlv_titleText="A" />
+            android:gravity="center"
+            android:padding="4dp"
+            android:orientation="vertical">
+
+            <com.github.pavlospt.roundedletterview.RoundedLetterView
+                android:id="@+id/rlv_name_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                app:rlv_backgroundColorValue="@color/darkPurple"
+                app:rlv_titleColor="@android:color/white"
+                app:rlv_titleSize="35dp"
+                app:rlv_titleText="A" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imageView_row_task_detail"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/circleImageViewRounded"
+                app:strokeColor="@color/darkPurple"
+                app:strokeWidth="1dp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"

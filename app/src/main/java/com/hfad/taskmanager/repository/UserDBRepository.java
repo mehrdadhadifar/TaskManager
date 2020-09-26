@@ -7,6 +7,7 @@ import androidx.room.Room;
 import com.hfad.taskmanager.database.TaskDataBase;
 import com.hfad.taskmanager.model.User;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,6 +79,11 @@ public class UserDBRepository implements IRepository<User> {
     @Override
     public int getPosition(UUID uuid) {
         return -1;
+    }
+
+    @Override
+    public File getPhotoFile(Context context, User user) {
+        return null;
     }
 
     public int getPosition(long id) {

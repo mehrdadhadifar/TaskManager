@@ -1,5 +1,10 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+ext {
+    touchimageviewVersion = touchimageviewVersion
+}// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    ext {
+        touchimageviewVersion = '3.0.1'
+    }
     repositories {
         google()
         jcenter()
@@ -16,6 +21,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 

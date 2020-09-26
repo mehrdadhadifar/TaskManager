@@ -27,6 +27,8 @@ public class Task {
     private Date mDate;
     @ColumnInfo(name = "userId")
     private long mUserId;
+    @ColumnInfo(name = "photoFileName")
+    private String mPhotoFileName;
 
     public long getId() {
         return id;
@@ -46,6 +48,7 @@ public class Task {
         mState = Utils.randomEnum(State.class);
         mDate = Utils.getRandomDate();
         mComment = "";
+        mPhotoFileName = producePhotoFileName();
     }
 
     @Ignore
@@ -55,6 +58,7 @@ public class Task {
         mState = state;
         mDate = Utils.getRandomDate();
         mComment = "";
+        mPhotoFileName = producePhotoFileName();
     }
 
     @Ignore
@@ -64,6 +68,7 @@ public class Task {
         mTitle = title;
         mComment = comment;
         mDate = Utils.getRandomDate();
+        mPhotoFileName = producePhotoFileName();
     }
 
     @Ignore
@@ -73,6 +78,17 @@ public class Task {
         mTitle = title;
         mComment = comment;
         mDate = date;
+        mPhotoFileName = producePhotoFileName();
+    }
+
+    @Ignore
+    public Task(String title, State state, String comment, Date date, String photoFileName) {
+        this();
+        mState = state;
+        mTitle = title;
+        mComment = comment;
+        mDate = date;
+        mPhotoFileName = photoFileName;
     }
 
     @Ignore
@@ -82,6 +98,7 @@ public class Task {
         mTitle = title;
         mDate = date;
         mComment = "";
+        mPhotoFileName = producePhotoFileName();
     }
 
     public UUID getUUID() {
@@ -130,6 +147,18 @@ public class Task {
 
     public void setUserId(long userId) {
         mUserId = userId;
+    }
+
+    public String getPhotoFileName() {
+        return mPhotoFileName;
+    }
+
+    public void setPhotoFileName(String photoFileName) {
+        mPhotoFileName = photoFileName;
+    }
+
+    public String producePhotoFileName() {
+        return "IMG_" + getDate() + ".jpg";
     }
 
     @Override
