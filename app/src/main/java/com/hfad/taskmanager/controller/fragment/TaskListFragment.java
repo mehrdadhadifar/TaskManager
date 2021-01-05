@@ -131,7 +131,7 @@ public class TaskListFragment extends Fragment {
         }
     }
 
-
+/*
     @Override
     public void onResume() {
         super.onResume();
@@ -139,7 +139,7 @@ public class TaskListFragment extends Fragment {
         Log.d(TAG, "on resume");
         Log.d(TAG, "size list select:" + mTaskRepository.getListByStates(mStateList).size());
         updateUI();
-    }
+    }*/
 
     private void findAllViews(View view) {
         mRecyclerViewTasks = view.findViewById(R.id.recycle_view_tasks);

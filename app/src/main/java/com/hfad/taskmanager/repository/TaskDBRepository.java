@@ -104,9 +104,10 @@ public class TaskDBRepository implements IRepository<Task> {
         UserDBRepository userDBRepository = UserDBRepository.getInstance(mContext);
         if (userDBRepository.get(userId).getRole() == 1)
             return allTasks;
-        for (int i = 0; i < allTasks.size(); i++) {
-            if (allTasks.get(i).getUserId() == userId)
-                userTaskList.add(allTasks.get(i));
+        for (Task task : allTasks
+        ) {
+            if (task.getUserId() == userId)
+                userTaskList.add(task);
         }
         return userTaskList;
     }

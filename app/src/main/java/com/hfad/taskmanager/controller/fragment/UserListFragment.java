@@ -1,32 +1,29 @@
 package com.hfad.taskmanager.controller.fragment;
 
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.hfad.taskmanager.R;
-import com.hfad.taskmanager.controller.activity.TaskPagerActivity;
 import com.hfad.taskmanager.model.User;
+import com.hfad.taskmanager.repository.TaskDBRepository;
 import com.hfad.taskmanager.repository.UserDBRepository;
+import com.hfad.taskmanager.adapter.UserAdapter;
 
 import java.util.List;
-import java.util.UUID;
 
 public class UserListFragment extends Fragment {
     public static final String ARG_USER_UUID = "ARG_USER_UUID";
     private RecyclerView mRecyclerViewUsers;
     private UserDBRepository mUserDBRepository;
+    private TaskDBRepository mTaskDBRepository;
+    private UserAdapter mAdapter;
     /*    private TextView[] mTextViewsUsers;
         private LinearLayout mLinearLayoutMain;
         private Button mButtonDelete;
@@ -50,59 +47,24 @@ public class UserListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUserDBRepository = UserDBRepository.getInstance(getActivity());
+        mTaskDBRepository = TaskDBRepository.getInstance(getActivity());
         mUserId = getArguments().getLong(ARG_USER_UUID);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
-       /* mLinearLayoutMain = view.findViewById(R.id.main_scroll_view);
-        final List<User> users = mUserDBRepository.getList();
-        mTextViewsUsers = new TextView[users.size()];
-        mLinearLayoutRow = new LinearLayout[users.size()];
-        int i;
-        for (i = 0; i < users.size(); i++) {
-            if (users.get(i).getId() == mUserId)
-                continue;
-            mLinearLayoutRow[i] = new LinearLayout(getActivity());
-            mLinearLayoutRow[i].setOrientation(LinearLayout.HORIZONTAL);
-            mLinearLayoutMain.addView(mLinearLayoutRow[i]);
-            mTextViewsUsers[i] = new TextView(getActivity());
-            mTextViewsUsers[i].setText(users.get(i).getUsername());
-            mTextViewsUsers[i].setVisibility(View.VISIBLE);
-            mTextViewsUsers[i].setTextSize(32);
-            mTextViewsUsers[i].setGravity(View.TEXT_ALIGNMENT_CENTER);
-            mTextViewsUsers[i].setForegroundGravity(View.TEXT_ALIGNMENT_CENTER);
-            mTextViewsUsers[i].setWidth(500);
-            mLinearLayoutRow[i].addView(mTextViewsUsers[i]);
-            mButtonDelete = new Button(getActivity());
-            mButtonDelete.setText("Delete");
-            mButtonDelete.setForegroundGravity(View.SCROLL_INDICATOR_END);
-            mLinearLayoutRow[i].addView(mButtonDelete);
-            final int finalI = i;
-            final int finalI1 = i;
-            mButtonDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mUserDBRepository.delete(users.get(finalI));
-                    mLinearLayoutRow[finalI1].setVisibility(View.GONE);
-                }
-            });
-            final int finalI2 = i;
-            mTextViewsUsers[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = TaskPagerActivity.newIntent(getActivity(), users.get(finalI2).getId());
-                    startActivity(intent);
-                }
-            });
-        }
-
-*/
         findAllViews(view);
+        updateUI();
+
 
         return view;
     }
@@ -110,4 +72,18 @@ public class UserListFragment extends Fragment {
     private void findAllViews(View view) {
         mRecyclerViewUsers = view.findViewById(R.id.user_list_recycler_view);
     }
+
+    private void updateUI() {
+        mRecyclerViewUsers.setLayoutManager(new LinearLayoutManager(getActivity()));
+        List<User> users = mUserDBRepository.getList();
+        if (mAdapter == null) {
+            mAdapter = new UserAdapter(users, getActivity());
+            mRecyclerViewUsers.setAdapter(mAdapter);
+        } else {
+            mAdapter.setList(users);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+
 }

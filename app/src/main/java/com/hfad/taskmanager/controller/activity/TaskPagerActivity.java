@@ -37,8 +37,7 @@ public class TaskPagerActivity extends AppCompatActivity implements DialogTaskDe
     private TaskDBRepository mTaskRepository;
     private long mUserId;
     private UserDBRepository mUserDBRepository;
-
-    FragmentStateAdapter mAdapter;
+    private FragmentStateAdapter mAdapter;
 
 
     public static Intent newIntent(Context context, long id) {
@@ -146,9 +145,6 @@ public class TaskPagerActivity extends AppCompatActivity implements DialogTaskDe
         }
         return stateList;
     }
-
-
-
 
 
     private void findAllViews() {
